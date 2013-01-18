@@ -2,10 +2,13 @@ package com.mineshaftersquared;
 
 import java.awt.BorderLayout;
 import java.awt.Color;
+import java.awt.Dimension;
 import java.awt.FlowLayout;
 import java.awt.GridLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.awt.event.MouseEvent;
+import java.awt.event.MouseListener;
 import java.io.File;
 import java.io.FilenameFilter;
 import java.util.LinkedList;
@@ -28,11 +31,13 @@ import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
 
 import com.creatifcubed.simpleapi.Platform;
+import com.creatifcubed.simpleapi.SimpleSettings;
 import com.creatifcubed.simpleapi.SimpleUtils;
 
 public class MineshafterSquaredGUI implements Runnable {
 	
 	private String[] args;
+	private SimpleSettings settings;
 	
 	private static int DEFAULT_WIDTH = 854;
 	private static int DEFAULT_HEIGHT = 480;
@@ -44,6 +49,7 @@ public class MineshafterSquaredGUI implements Runnable {
 	
 	public MineshafterSquaredGUI(String[] args) {
 		this.args = args;
+		this.settings = new SimpleSettings("ms2-resources/settings.xml");
 	}
 	
 	public void run() {
@@ -69,7 +75,7 @@ public class MineshafterSquaredGUI implements Runnable {
 		System.out.println(SimpleUtils.getRam());
 	}
 	
-	private static JComponent buildMainPage() {
+	private JComponent buildMainPage() {
 		JPanel panel = new JPanel(new BorderLayout());
 		
 		JPanel infoPane = new JPanel(new FlowLayout(FlowLayout.LEFT));
@@ -105,6 +111,12 @@ public class MineshafterSquaredGUI implements Runnable {
 		
 		JPanel launchClientPane = new JPanel(new FlowLayout(FlowLayout.LEFT));
 		JButton launchClientButton = new JButton("Launch Client");
+		launchClientButton.addActionListener(new ActionListener() {
+			@Override
+			public void actionPerformed(ActionEvent event) {
+				goLauncher();
+			}
+		});
 		launchClientPane.add(launchClientButton);
 		JPanel launchServerPane = new JPanel(new FlowLayout(FlowLayout.LEFT));
 		JButton launchServerButton = new JButton("Launch Server");
@@ -140,7 +152,7 @@ public class MineshafterSquaredGUI implements Runnable {
 		return panel;
 	}
 	
-	private static JComponent buildSettingsPage() {
+	private JComponent buildSettingsPage() {
 		final JPanel panel = new JPanel(new GridLayout(0, 1));
 		
 		JPanel memoryPane = new JPanel(new GridLayout(0, 2));
@@ -191,7 +203,9 @@ public class MineshafterSquaredGUI implements Runnable {
 					errorMessages.add("Max memory must be greater or equal to intial memory");
 				}
 				if (errorMessages.size() == 0) {
-					// save
+					settings.put("runtime.ram.max", Integer.toString(maxMemorySlider.getValue()));
+					settings.put("runtime.ram.min", Integer.toString(minMemorySlider.getValue()));
+					settings.save("ms2-resources/settings.xml");
 				} else {
 					String bin = "";
 					for (String message : errorMessages) {
@@ -233,5 +247,15 @@ public class MineshafterSquaredGUI implements Runnable {
 				return f.isFile() && Pattern.compile("[a-zA-Z0-9_.-]*.jar").matcher(name).matches();
 			}
 		});
+	}
+	
+	private void goLauncher() {
+		String max = this.settings.get("runtime.ram.max");
+		String min = this.settings.get("runtime.ram.min");
+		System.out.println("max is null " + (max == null ?  "true" : max));
+		System.out.println("min is null " + (min == null ?  "true" : min));
+		
+		MinecraftLauncher launcher = new MinecraftLauncher(/*args*/ new String[] { "Adrian", "a"}, new Dimension(854, 500), false, false);
+		launcher.run();
 	}
 }

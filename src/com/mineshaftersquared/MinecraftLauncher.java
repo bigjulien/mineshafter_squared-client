@@ -87,6 +87,8 @@ public class MinecraftLauncher extends Applet implements Runnable {
 					MS2Container container = new MS2Container(parameters, app);
 					frame.start(container);
 				} catch (Exception ex) {
+					ex.printStackTrace();
+					System.exit(-1);
 					System.out.println("Launching in compatibility mode");
 					Class mc = cl.loadClass("net.minecraft.client.Minecraft");
 					mc.getMethod("main", String[].class).invoke(null, (Object) this.credentials);

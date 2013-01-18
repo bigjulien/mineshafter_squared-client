@@ -21,7 +21,7 @@ public class MS2Frame extends JFrame {
 		this.setBackground(Color.BLACK);
 		
 		this.wrapper = new JPanel();
-		this.setPreferredSize(new Dimension(854, 600));
+		this.setPreferredSize(new Dimension(854, 520));
 		//this.wrapper.setOpaque(false);
 		this.wrapper.setLayout(new BorderLayout());
 		this.add(wrapper, BorderLayout.CENTER);

@@ -1,6 +1,6 @@
 package com.creatifcubed.simpleapi.exceptions;
 
-public class CCException extends Exception {
+public class CCException extends RuntimeException {
 
 	private int code;
 	
