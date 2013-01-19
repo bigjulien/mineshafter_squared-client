@@ -26,21 +26,50 @@ public class MinecraftLauncher extends Applet implements Runnable {
 	private String[] credentials; // username and sessionID
 	private boolean compatMode;
 	private boolean maximize;
+	private int pathFind;
 	
-	public MinecraftLauncher(String[] credentials, boolean compatMode, boolean maximize) {
+	public static final int PATH_AUTODETECT = 0;
+	public static final int PATH_DEFAULTMC = 1;
+	public static final int PATH_LOCAL = 2;
+	
+	public MinecraftLauncher(String[] credentials) {
 		this.credentials = credentials;
-		this.compatMode = compatMode;
-		this.maximize = maximize;
+		this.compatMode = false;
+		this.maximize = false;
+		this.pathFind = PATH_AUTODETECT;
 	}
+	
+	public void setCompat(boolean b) {
+		this.compatMode = b;
+	}
+	
+	public void setMaximize(boolean b) {
+		this.maximize = b;
+	}
+	
+	public void setPathfind(int type) {
+		this.pathFind = type;
+	}
+	//public MinecraftLauncher() {};
 	
 	public void run() {
 		String cwd = System.getProperty("user.dir");
-		cwd = Utils.getDefaultMCPath();
-		System.out.println(cwd);
-		
-		if (true) {
-			//return;
+		switch (this.pathFind) {
+			case PATH_DEFAULTMC:
+				cwd = Utils.getDefaultMCPath();
+				break;
+			case PATH_LOCAL:
+				// do nothing
+			default:
+				if (new File("bin/minecraft.jar").exists()) {
+					// do nothing
+				} else {
+					cwd = Utils.getDefaultMCPath();
+				}
+				break;
 		}
+		//System.out.println("src: " + cwd);
+		
 		try {
 			String[] jarFiles = new String[] {
 				"minecraft.jar", "lwjgl.jar", "lwjgl_util.jar", "jinput.jar"

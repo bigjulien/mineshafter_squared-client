@@ -31,6 +31,7 @@ import javax.swing.JTextField;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
 
+import com.creatifcubed.simpleapi.ISimpleSettings;
 import com.creatifcubed.simpleapi.Platform;
 import com.creatifcubed.simpleapi.SimpleXMLSettings;
 import com.creatifcubed.simpleapi.SimpleUtils;
@@ -39,7 +40,7 @@ import com.mineshaftersquared.resources.MS2Frame;
 public class MineshafterSquaredGUI implements Runnable {
 	
 	private String[] args;
-	private SimpleXMLSettings settings;
+	private ISimpleSettings settings;
 	
 	private static int DEFAULT_WIDTH = 854;
 	private static int DEFAULT_HEIGHT = 480;
@@ -140,18 +141,20 @@ public class MineshafterSquaredGUI implements Runnable {
 			settingsServerName = "minecraft_server";
 		}
 		final JTextField serverName = new JTextField(settingsServerName, 20);
+		final JCheckBox rememberServer = new JCheckBox("Set as default?", true);
 		launchServerButton.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent event) {
-				String serverFileName = serverName.getText();
-				System.out.println(serverFileName);
-				MineshafterSquaredGUI.this.settings.put("server.name", serverFileName);
-				MineshafterSquaredGUI.this.settings.save("ms2-resources/settings.xml");
-				MineshafterSquaredGUI.this.goServer();
+				if (rememberServer.isSelected()) {
+					String serverFileName = serverName.getText();
+					System.out.println(serverFileName);
+					MineshafterSquaredGUI.this.settings.put("server.name", serverFileName);
+					MineshafterSquaredGUI.this.settings.save();
+					MineshafterSquaredGUI.this.goServer();
+				}
 			}
 		});
 		JLabel serverNameExtension = new JLabel(".jar");
-		JCheckBox rememberServer = new JCheckBox("Set as default?", true);
 		launchServerPane.add(launchServerButton);
 		launchServerPane.add(serverName);
 		launchServerPane.add(serverNameExtension);
@@ -182,7 +185,7 @@ public class MineshafterSquaredGUI implements Runnable {
 		final JLabel minMemoryLabel = new JLabel("Minimum Memory");
 		long x = (long) Math.floor((double) SimpleUtils.getRam() / 1024 / 1024 / 1024) * 1024;
 		final JSlider minMemorySlider = new JSlider(0, (int) x);
-		minMemorySlider.setValue(300); // READ VALUE
+		minMemorySlider.setValue(this.settings.getInt("runtime.ram.min", 1024) - 1); // -1 to automatically update label
 		minMemorySlider.setMajorTickSpacing(1024);
 		minMemorySlider.setMinorTickSpacing(512);
 		minMemorySlider.setPaintTicks(true);
@@ -198,7 +201,7 @@ public class MineshafterSquaredGUI implements Runnable {
 		memoryPane.add(minMemorySlider);
 		final JLabel maxMemoryLabel = new JLabel("Maximum Memory");
 		final JSlider maxMemorySlider = new JSlider(0, (int) x);
-		maxMemorySlider.setValue(300); // READ VALUE
+		maxMemorySlider.setValue(this.settings.getInt("runtime.ram.max", 1024) - 1); // -1 to automatically update label
 		maxMemorySlider.setMajorTickSpacing(1024);
 		maxMemorySlider.setMinorTickSpacing(512);
 		maxMemorySlider.setPaintTicks(true);
@@ -227,7 +230,7 @@ public class MineshafterSquaredGUI implements Runnable {
 				if (errorMessages.size() == 0) {
 					settings.put("runtime.ram.max", Integer.toString(maxMemorySlider.getValue()));
 					settings.put("runtime.ram.min", Integer.toString(minMemorySlider.getValue()));
-					settings.save("ms2-resources/settings.xml");
+					settings.save();
 				} else {
 					String bin = "";
 					for (String message : errorMessages) {
@@ -299,8 +302,8 @@ public class MineshafterSquaredGUI implements Runnable {
 	        arr.add("a");
 	        ProcessBuilder builder = new ProcessBuilder(arr);
 	        System.out.println("here");
-	        builder.redirectOutput();
-	        builder.redirectError();
+	        //builder.redirectOutput();
+	        builder.redirectErrorStream(true);
 	        builder.start();
 	        for (String a : arr) {
 	        	System.out.print(a + " ");
@@ -313,8 +316,8 @@ public class MineshafterSquaredGUI implements Runnable {
 	private void goServer() {
 		String max = this.settings.getString("runtime.ram.max");
 		String min = this.settings.getString("runtime.ram.min");
-		System.out.println("max is null " + (max == null ?  "true" : max));
-		System.out.println("min is null " + (min == null ?  "true" : min));
+		System.out.println("max is " + (max == null ?  "null" : max));
+		System.out.println("min is " + (min == null ?  "null" : min));
 		
 		//MinecraftLauncher launcher = new MinecraftLauncher(/*args*/ new String[] { "Adrian", "a"}, new Dimension(854, 500), false, false);
 		//launcher.run();
@@ -327,10 +330,9 @@ public class MineshafterSquaredGUI implements Runnable {
 				arr.add("-Xmx" + max + "m");
 				//arr.add("-Xms" + max + "m");
 			}
-			//arr.add("-Dsun.java2d.noddraw=true");
-			//arr.add("-Dsun.java2d.d3d=false");
-			//arr.add("-Dsun.java2d.opengl=false");
-			//arr.add("-Dsun.java2d.pmoffscreen=false");
+			if (min != null) {
+				arr.add("-Xms" + min + "m");
+			}
 
 			arr.add("-jar");
 	        String server = this.settings.getString("server.name");

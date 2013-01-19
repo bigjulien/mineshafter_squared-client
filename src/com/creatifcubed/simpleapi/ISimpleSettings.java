@@ -1,5 +1,8 @@
 package com.creatifcubed.simpleapi;
 
+import java.util.Collection;
+import java.util.List;
+
 public interface ISimpleSettings {
 	public void load(String path);
 	public void load();
@@ -18,4 +21,8 @@ public interface ISimpleSettings {
 	
 	public Double getDouble(String key);
 	public Double getDouble(String key, Double def);
+	
+	public void putCollection(String key, Collection<Object> c);
+	
+	public List<Object> getCollection(String key);
 }

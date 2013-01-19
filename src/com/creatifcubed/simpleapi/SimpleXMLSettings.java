@@ -1,6 +1,8 @@
 package com.creatifcubed.simpleapi;
 
 import java.io.FileNotFoundException;
+import java.util.Collection;
+import java.util.List;
 
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
@@ -169,5 +171,15 @@ public class SimpleXMLSettings implements ISimpleSettings {
 			}
 		}
 		return null;
+	}
+
+	@Override
+	public void putCollection(String key, Collection<Object> c) {
+		throw new UnsupportedOperationException();
+	}
+
+	@Override
+	public List<Object> getCollection(String key) {
+		throw new UnsupportedOperationException();
 	}
 }
