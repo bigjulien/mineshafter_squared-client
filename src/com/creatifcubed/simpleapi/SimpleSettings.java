@@ -14,11 +14,11 @@ public class SimpleSettings {
 	private SimpleDoc source;
 	
 	public SimpleSettings(String path) throws SimpleDocException {
+		this.path = path;
 		this.load(path);
 	}
 	
 	public void load(String path) throws SimpleDocException {
-		this.path = path;
 		try {
 			this.source = new SimpleDoc(path);
 		} catch (SimpleDocException ex) {
@@ -32,6 +32,10 @@ public class SimpleSettings {
 	
 	public void save(String path) throws SimpleDocException {
 		this.source.save(path);
+	}
+	
+	public void save() throws SimpleDocException {
+		this.source.save(this.path);
 	}
 	
 	public SimpleSettings put(String key, String value) {

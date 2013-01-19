@@ -24,13 +24,11 @@ import com.mineshaftersquared.resources.Utils;
 
 public class MinecraftLauncher extends Applet implements Runnable {
 	private String[] credentials; // username and sessionID
-	private Dimension dimension;
 	private boolean compatMode;
 	private boolean maximize;
 	
-	public MinecraftLauncher(String[] credentials, Dimension dimension, boolean compatMode, boolean maximize) {
+	public MinecraftLauncher(String[] credentials, boolean compatMode, boolean maximize) {
 		this.credentials = credentials;
-		this.dimension = dimension;
 		this.compatMode = compatMode;
 		this.maximize = maximize;
 	}
@@ -99,27 +97,5 @@ public class MinecraftLauncher extends Applet implements Runnable {
 		} catch (Exception ex) {
 			ex.printStackTrace();
 		}
-	}
-	
-	public static Field getMCPathField(Class<?> mc)
-	{
-		Field[] fields = mc.getDeclaredFields();
-
-		for (int i = 0; i < fields.length; i++)
-		{
-			Field f = fields[i];
-			if (f.getType() != File.class)
-			{
-				// Has to be File
-				continue;
-			}
-			if (f.getModifiers() != (Modifier.PRIVATE + Modifier.STATIC))
-			{
-				// And Private Static.
-				continue;
-			}
-			return f;
-		}
-		return null;
 	}
 }

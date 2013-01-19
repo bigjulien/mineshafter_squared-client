@@ -11,6 +11,7 @@ import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
 import java.io.File;
 import java.io.FilenameFilter;
+import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.regex.Pattern;
@@ -33,6 +34,7 @@ import javax.swing.event.ChangeListener;
 import com.creatifcubed.simpleapi.Platform;
 import com.creatifcubed.simpleapi.SimpleSettings;
 import com.creatifcubed.simpleapi.SimpleUtils;
+import com.mineshaftersquared.resources.MS2Frame;
 
 public class MineshafterSquaredGUI implements Runnable {
 	
@@ -49,6 +51,7 @@ public class MineshafterSquaredGUI implements Runnable {
 	
 	public MineshafterSquaredGUI(String[] args) {
 		this.args = args;
+		new File("ms2-resources").mkdir();
 		this.settings = new SimpleSettings("ms2-resources/settings.xml");
 	}
 	
@@ -61,9 +64,9 @@ public class MineshafterSquaredGUI implements Runnable {
 		
 		JTabbedPane tabbedPane = new JTabbedPane();
 		tabbedPane.add("Main", buildMainPage());
-		tabbedPane.add("Versions", buildVersionsPage());
+		//tabbedPane.add("Versions", buildVersionsPage());
 		tabbedPane.add("Settings", buildSettingsPage());
-		tabbedPane.add("News", buildNewsPage());
+		//tabbedPane.add("News", buildNewsPage());
 		tabbedPane.add("Info", buildInfoPage());
 		contentPane.add(tabbedPane);
 		
@@ -87,11 +90,23 @@ public class MineshafterSquaredGUI implements Runnable {
 		
 		JPanel loginPane = new JPanel(new GridLayout(0, 2));
 		JLabel usernameLabel = new JLabel("Username");
-		JTextField usernameField = new JTextField("READ FILE", 20);
+		final JTextField usernameField = new JTextField(this.settings.get("username"), 20);
 		JLabel passwordLabel = new JLabel("Password");
-		JTextField passwordField = new JPasswordField("READ FILE", 20);
-		JCheckBox rememberMe = new JCheckBox("Remember me?", true);
+		final JTextField passwordField = new JPasswordField(this.settings.get("password"), 20);
+		final JCheckBox rememberMe = new JCheckBox("Remember me?", true);
 		JButton loginButton = new JButton("Login");
+		loginButton.addActionListener(new ActionListener() {
+
+			@Override
+			public void actionPerformed(ActionEvent arg0) {
+				if (rememberMe.isSelected()) {
+					MineshafterSquaredGUI.this.settings.put("username", usernameField.getText());
+					MineshafterSquaredGUI.this.settings.put("password", passwordField.getText());
+					MineshafterSquaredGUI.this.settings.save();
+				}
+			}
+			
+		});
 		JLabel sessionIDDescription = new JLabel("Session ID");
 		JLabel sessionID = new JLabel("Not logged in");
 		
@@ -120,12 +135,19 @@ public class MineshafterSquaredGUI implements Runnable {
 		launchClientPane.add(launchClientButton);
 		JPanel launchServerPane = new JPanel(new FlowLayout(FlowLayout.LEFT));
 		JButton launchServerButton = new JButton("Launch Server");
-		final JTextField serverName = new JTextField("READ FILE", 20);
+		String settingsServerName = this.settings.get("server.name");
+		if (settingsServerName == null) {
+			settingsServerName = "minecraft_server";
+		}
+		final JTextField serverName = new JTextField(settingsServerName, 20);
 		launchServerButton.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent event) {
-				String serverFileName = serverName.getText() + ".jar";
+				String serverFileName = serverName.getText();
 				System.out.println(serverFileName);
+				MineshafterSquaredGUI.this.settings.put("server.name", serverFileName);
+				MineshafterSquaredGUI.this.settings.save("ms2-resources/settings.xml");
+				MineshafterSquaredGUI.this.goServer();
 			}
 		});
 		JLabel serverNameExtension = new JLabel(".jar");
@@ -255,7 +277,80 @@ public class MineshafterSquaredGUI implements Runnable {
 		System.out.println("max is null " + (max == null ?  "true" : max));
 		System.out.println("min is null " + (min == null ?  "true" : min));
 		
-		MinecraftLauncher launcher = new MinecraftLauncher(/*args*/ new String[] { "Adrian", "a"}, new Dimension(854, 500), false, false);
-		launcher.run();
+		//MinecraftLauncher launcher = new MinecraftLauncher(/*args*/ new String[] { "Adrian", "a"}, new Dimension(854, 500), false, false);
+		//launcher.run();
+		
+		try {
+			String str = this.getClass().getProtectionDomain().getCodeSource().getLocation().toURI().getPath();
+			List<String> arr = new ArrayList<String>();
+			arr.add("java");
+			if (max != null) {
+				arr.add("-Xmx" + max + "m");
+			}
+			//arr.add("-Dsun.java2d.noddraw=true");
+			//arr.add("-Dsun.java2d.d3d=false");
+			//arr.add("-Dsun.java2d.opengl=false");
+			//arr.add("-Dsun.java2d.pmoffscreen=false");
+
+			arr.add("-classpath");
+	        arr.add(str);
+	        arr.add("com.mineshaftersquared.resources.GameEntry");
+	        arr.add("Adrian");
+	        arr.add("a");
+	        ProcessBuilder builder = new ProcessBuilder(arr);
+	        System.out.println("here");
+	        builder.redirectOutput();
+	        builder.redirectError();
+	        builder.start();
+	        for (String a : arr) {
+	        	System.out.print(a + " ");
+	        }
+		} catch (Exception ex) {
+			ex.printStackTrace();
+		}
+	}
+	
+	private void goServer() {
+		String max = this.settings.get("runtime.ram.max");
+		String min = this.settings.get("runtime.ram.min");
+		System.out.println("max is null " + (max == null ?  "true" : max));
+		System.out.println("min is null " + (min == null ?  "true" : min));
+		
+		//MinecraftLauncher launcher = new MinecraftLauncher(/*args*/ new String[] { "Adrian", "a"}, new Dimension(854, 500), false, false);
+		//launcher.run();
+		
+		try {
+			String str = this.getClass().getProtectionDomain().getCodeSource().getLocation().toURI().getPath();
+			List<String> arr = new ArrayList<String>();
+			arr.add("java");
+			if (max != null) {
+				arr.add("-Xmx" + max + "m");
+				//arr.add("-Xms" + max + "m");
+			}
+			//arr.add("-Dsun.java2d.noddraw=true");
+			//arr.add("-Dsun.java2d.d3d=false");
+			//arr.add("-Dsun.java2d.opengl=false");
+			//arr.add("-Dsun.java2d.pmoffscreen=false");
+
+			arr.add("-jar");
+	        String server = this.settings.get("server.name");
+	        if (server == null) {
+	        	server = "minecraft_server";
+	        }
+	        server += ".jar";
+	        if (!(new File(server).exists())) {
+	        	JOptionPane.showMessageDialog(null, "Server file {" + server + "} does not exist");
+	        }
+	        arr.add(server);
+	        ProcessBuilder builder = new ProcessBuilder(arr);
+	        builder.redirectOutput();
+	        builder.redirectError();
+	        builder.start();
+	        for (String a : arr) {
+	        	System.out.print(a + " ");
+	        }
+		} catch (Exception ex) {
+			ex.printStackTrace();
+		}
 	}
 }
