@@ -32,14 +32,14 @@ import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
 
 import com.creatifcubed.simpleapi.Platform;
-import com.creatifcubed.simpleapi.SimpleSettings;
+import com.creatifcubed.simpleapi.SimpleXMLSettings;
 import com.creatifcubed.simpleapi.SimpleUtils;
 import com.mineshaftersquared.resources.MS2Frame;
 
 public class MineshafterSquaredGUI implements Runnable {
 	
 	private String[] args;
-	private SimpleSettings settings;
+	private SimpleXMLSettings settings;
 	
 	private static int DEFAULT_WIDTH = 854;
 	private static int DEFAULT_HEIGHT = 480;
@@ -52,7 +52,7 @@ public class MineshafterSquaredGUI implements Runnable {
 	public MineshafterSquaredGUI(String[] args) {
 		this.args = args;
 		new File("ms2-resources").mkdir();
-		this.settings = new SimpleSettings("ms2-resources/settings.xml");
+		this.settings = new SimpleXMLSettings("ms2-resources/settings.xml");
 	}
 	
 	public void run() {
@@ -90,9 +90,9 @@ public class MineshafterSquaredGUI implements Runnable {
 		
 		JPanel loginPane = new JPanel(new GridLayout(0, 2));
 		JLabel usernameLabel = new JLabel("Username");
-		final JTextField usernameField = new JTextField(this.settings.get("username"), 20);
+		final JTextField usernameField = new JTextField(this.settings.getString("username"), 20);
 		JLabel passwordLabel = new JLabel("Password");
-		final JTextField passwordField = new JPasswordField(this.settings.get("password"), 20);
+		final JTextField passwordField = new JPasswordField(this.settings.getString("password"), 20);
 		final JCheckBox rememberMe = new JCheckBox("Remember me?", true);
 		JButton loginButton = new JButton("Login");
 		loginButton.addActionListener(new ActionListener() {
@@ -135,7 +135,7 @@ public class MineshafterSquaredGUI implements Runnable {
 		launchClientPane.add(launchClientButton);
 		JPanel launchServerPane = new JPanel(new FlowLayout(FlowLayout.LEFT));
 		JButton launchServerButton = new JButton("Launch Server");
-		String settingsServerName = this.settings.get("server.name");
+		String settingsServerName = this.settings.getString("server.name");
 		if (settingsServerName == null) {
 			settingsServerName = "minecraft_server";
 		}
@@ -272,8 +272,8 @@ public class MineshafterSquaredGUI implements Runnable {
 	}
 	
 	private void goLauncher() {
-		String max = this.settings.get("runtime.ram.max");
-		String min = this.settings.get("runtime.ram.min");
+		String max = this.settings.getString("runtime.ram.max");
+		String min = this.settings.getString("runtime.ram.min");
 		System.out.println("max is null " + (max == null ?  "true" : max));
 		System.out.println("min is null " + (min == null ?  "true" : min));
 		
@@ -311,8 +311,8 @@ public class MineshafterSquaredGUI implements Runnable {
 	}
 	
 	private void goServer() {
-		String max = this.settings.get("runtime.ram.max");
-		String min = this.settings.get("runtime.ram.min");
+		String max = this.settings.getString("runtime.ram.max");
+		String min = this.settings.getString("runtime.ram.min");
 		System.out.println("max is null " + (max == null ?  "true" : max));
 		System.out.println("min is null " + (min == null ?  "true" : min));
 		
@@ -333,7 +333,7 @@ public class MineshafterSquaredGUI implements Runnable {
 			//arr.add("-Dsun.java2d.pmoffscreen=false");
 
 			arr.add("-jar");
-	        String server = this.settings.get("server.name");
+	        String server = this.settings.getString("server.name");
 	        if (server == null) {
 	        	server = "minecraft_server";
 	        }
