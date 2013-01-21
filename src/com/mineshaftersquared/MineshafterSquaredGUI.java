@@ -48,6 +48,8 @@ public class MineshafterSquaredGUI implements Runnable {
 	
 	private String[] args;
 	private ISimpleSettings settings;
+	private JTextField username;
+	private JLabel sessionId;
 	
 	private static final int DEFAULT_WIDTH = 854;
 	private static final int DEFAULT_HEIGHT = 480;
@@ -62,6 +64,8 @@ public class MineshafterSquaredGUI implements Runnable {
 		this.args = args;
 		new File("ms2-resources").mkdir();
 		this.settings = new SimpleXMLSettings("ms2-resources/settings.xml");
+		this.username = null;
+		this.sessionId = null;
 	}
 	
 	public void run() {
@@ -100,6 +104,7 @@ public class MineshafterSquaredGUI implements Runnable {
 		JPanel loginPane = new JPanel(new GridLayout(0, 2));
 		JLabel usernameLabel = new JLabel("Username");
 		final JTextField usernameField = new JTextField(this.settings.getString("username"), 20);
+		this.username = usernameField;
 		JLabel passwordLabel = new JLabel("Password");
 		final JTextField passwordField = new JPasswordField(this.settings.getString("password"), 20);
 		final JCheckBox rememberMe = new JCheckBox("Remember me?", true);
@@ -118,6 +123,7 @@ public class MineshafterSquaredGUI implements Runnable {
 		});
 		JLabel sessionIDDescription = new JLabel("Session ID");
 		JLabel sessionID = new JLabel("Not logged in");
+		this.sessionId = sessionID;
 		
 		loginPane.add(usernameLabel);
 		loginPane.add(usernameField);
@@ -347,8 +353,8 @@ public class MineshafterSquaredGUI implements Runnable {
 			arr.add("-classpath");
 	        arr.add(str);
 	        arr.add("com.mineshaftersquared.resources.GameEntry");
-	        arr.add("Adrian");
-	        arr.add("a");
+	        arr.add(this.username.getText());
+	        arr.add(this.sessionId.getText());
 	        int pathFind = this.settings.getInt("gui.launch.pathfind", MinecraftLauncher.PATH_AUTODETECT);
 	        arr.add(String.valueOf(pathFind));
 	        
