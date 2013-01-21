@@ -56,7 +56,7 @@ public class Utils {
     	switch (Platform.getPlatform()) {
     	case WINDOWS:
     		String appdata = System.getenv("APPDATA");
-    		extension = (appdata == null ? base : appdata) + "/.minecraft";
+    		extension = (appdata == null ? base : appdata) + "\\.minecraft";
     		break;
     	case MAC:
     		extension = base + "Library/Application Support/minecraft";

@@ -60,6 +60,7 @@ public class MinecraftLauncher extends Applet implements Runnable {
 				break;
 			case PATH_LOCAL:
 				// do nothing
+				break;
 			default:
 				if (new File("bin/minecraft.jar").exists()) {
 					// do nothing
