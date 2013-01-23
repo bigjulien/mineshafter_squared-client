@@ -4,7 +4,9 @@ import java.applet.Applet;
 import java.awt.Dimension;
 import java.io.File;
 import java.io.IOException;
+import java.lang.reflect.Constructor;
 import java.lang.reflect.Field;
+import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
 import java.net.URL;
 import java.net.URLClassLoader;
@@ -94,6 +96,50 @@ public class MinecraftLauncher extends Applet implements Runnable {
 			URLClassLoader cl = new URLClassLoader(urls);
 			
 			System.setProperty("minecraft.applet.TargetDirectory", cwd);
+			
+			if (System.getProperty("user.dir") != null) {
+				System.out.println("here");
+				URLClassLoader gameupdater = new URLClassLoader(new URL[] { new File(cwd, "minecraft.jar").toURI().toURL()});
+				Class game = gameupdater.loadClass("net.minecraft.GameUpdater");
+				Constructor constructor = game.getConstructor(String.class, String.class, Boolean.TYPE);
+				Runnable g = (Runnable) constructor.newInstance(Utils.getMCVersion(new File(new File(cwd, "bin"), "minecraft.jar")), "minecraft.jar", false);
+				
+				String path = cwd + "\\bin\\";
+				Method foo = game.getDeclaredMethod("downloadJars", String.class);
+				Method bar = game.getDeclaredMethod("extractJars", String.class);
+				Method baz = game.getDeclaredMethod("extractNatives", String.class);
+				
+				foo.setAccessible(true);
+				bar.setAccessible(true);
+				baz.setAccessible(true);
+				Method binky = game.getDeclaredMethod("loadJarURLs");
+				binky.setAccessible(true);
+				binky.invoke(g);
+				
+				foo.invoke(g, path);
+				bar.invoke(g, path);
+				baz.invoke(g, path);
+				
+				Field f = g.getClass().getDeclaredField("classLoader");
+				f.setAccessible(true);
+				f.set(null, cl);
+				System.out.println("here");
+				
+				Method m = game.getMethod("createApplet");
+				Applet a = (Applet) m.invoke(g);
+				System.out.println("a is null " + (a == null));
+				MS2Frame frame = new MS2Frame();
+				frame.setVisible(true);
+				Map<String, String> parameters = new HashMap<String, String>();
+				parameters.put("username", this.credentials[0]);
+				parameters.put("sessionid", this.credentials[1]);
+				parameters.put("demo", "false");
+				parameters.put("server", "false");
+				parameters.put("stand-alone", "true");
+				MS2Container container = new MS2Container(parameters, a);
+				frame.start(container);
+				return;
+			}
 			
 			if (this.compatMode) {
 				Class mc = cl.loadClass("net.minecraft.client.Minecraft");

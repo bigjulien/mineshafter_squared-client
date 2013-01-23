@@ -41,15 +41,18 @@ import com.creatifcubed.simpleapi.ISimpleSettings;
 import com.creatifcubed.simpleapi.Platform;
 import com.creatifcubed.simpleapi.SimpleXMLSettings;
 import com.creatifcubed.simpleapi.SimpleUtils;
+import com.mineshaftersquared.gui.panels.IndexTabPanel;
+import com.mineshaftersquared.gui.panels.InfoTabPanel;
+import com.mineshaftersquared.gui.panels.SettingsTabPanel;
 import com.mineshaftersquared.resources.MS2Frame;
 import com.mineshaftersquared.resources.Utils;
 
 public class MineshafterSquaredGUI implements Runnable {
 	
 	private String[] args;
-	private ISimpleSettings settings;
-	private JTextField username;
-	private JLabel sessionId;
+	public ISimpleSettings settings;
+	public JTextField username;
+	public JLabel sessionId;
 	
 	private static final int DEFAULT_WIDTH = 854;
 	private static final int DEFAULT_HEIGHT = 480;
@@ -76,11 +79,11 @@ public class MineshafterSquaredGUI implements Runnable {
 		JPanel contentPane = new JPanel(new BorderLayout());
 		
 		JTabbedPane tabbedPane = new JTabbedPane();
-		tabbedPane.add("Main", buildMainPage());
+		tabbedPane.add("Main", new IndexTabPanel(this));
 		//tabbedPane.add("Versions", buildVersionsPage());
-		tabbedPane.add("Settings", buildSettingsPage());
+		tabbedPane.add("Settings", new SettingsTabPanel(this));
 		//tabbedPane.add("News", buildNewsPage());
-		tabbedPane.add("Info", buildInfoPage());
+		tabbedPane.add("Info", new InfoTabPanel());
 		contentPane.add(tabbedPane);
 		
 		frame.setContentPane(contentPane);
@@ -89,228 +92,6 @@ public class MineshafterSquaredGUI implements Runnable {
 		frame.setResizable(false);
 		
 		System.out.println(SimpleUtils.getRam());
-	}
-	
-	private JComponent buildMainPage() {
-		JPanel panel = new JPanel(new BorderLayout());
-		
-		JPanel infoPane = new JPanel(new FlowLayout(FlowLayout.LEFT));
-		String javaVersion = System.getProperty("java.version");
-		String os = Platform.getPlatform().toString();
-		infoPane.add(new JLabel(String.format("<html><ul><li>Java Version: %s</li><li>Detected OS: %s</li><li>Proxying on port: %s</li><li>Total Ram: %s</ul></html>", javaVersion, os, "9001", (double) (SimpleUtils.getRam() * 100 / 1024 / 1024 / 1024) / 100 + "GB")));
-		infoPane.setBorder(BorderFactory.createTitledBorder(BorderFactory.createLineBorder(Color.BLACK), "Info"));
-		panel.add(infoPane, BorderLayout.NORTH);
-		
-		JPanel loginPane = new JPanel(new GridLayout(0, 2));
-		JLabel usernameLabel = new JLabel("Username");
-		final JTextField usernameField = new JTextField(this.settings.getString("username"), 20);
-		this.username = usernameField;
-		JLabel passwordLabel = new JLabel("Password");
-		final JTextField passwordField = new JPasswordField(this.settings.getString("password"), 20);
-		final JCheckBox rememberMe = new JCheckBox("Remember me?", true);
-		JButton loginButton = new JButton("Login");
-		loginButton.addActionListener(new ActionListener() {
-
-			@Override
-			public void actionPerformed(ActionEvent arg0) {
-				if (rememberMe.isSelected()) {
-					MineshafterSquaredGUI.this.settings.put("username", usernameField.getText());
-					MineshafterSquaredGUI.this.settings.put("password", passwordField.getText());
-					MineshafterSquaredGUI.this.settings.save();
-				}
-			}
-			
-		});
-		JLabel sessionIDDescription = new JLabel("Session ID");
-		JLabel sessionID = new JLabel("Not logged in");
-		this.sessionId = sessionID;
-		
-		loginPane.add(usernameLabel);
-		loginPane.add(usernameField);
-		loginPane.add(passwordLabel);
-		loginPane.add(passwordField);
-		loginPane.add(rememberMe);
-		loginPane.add(loginButton);
-		loginPane.add(sessionIDDescription);
-		loginPane.add(sessionID);
-		
-		loginPane.setBorder(BorderFactory.createTitledBorder(BorderFactory.createLineBorder(Color.BLACK), "Login"));
-		panel.add(loginPane, BorderLayout.CENTER);
-		
-		JPanel launchPane = new JPanel(new BorderLayout());
-		
-		JPanel launchClientPane = new JPanel(new FlowLayout(FlowLayout.LEFT));
-		JButton launchClientButton = new JButton("Launch Client");
-		launchClientButton.addActionListener(new ActionListener() {
-			@Override
-			public void actionPerformed(ActionEvent event) {
-				goLauncher();
-			}
-		});
-		int savedPathfind = this.settings.getInt("gui.launch.pathfind", MinecraftLauncher.PATH_AUTODETECT);
-		ButtonGroup pathFindOptions = new ButtonGroup();
-		JRadioButton autodetect = new JRadioButton("Autodetect", savedPathfind == 0);
-		autodetect.addActionListener(new ActionListener() {
-			@Override
-			public void actionPerformed(ActionEvent event) {
-				MineshafterSquaredGUI.this.settings.put("gui.launch.pathfind", MinecraftLauncher.PATH_AUTODETECT);
-				MineshafterSquaredGUI.this.settings.save();
-			}
-		});
-		JRadioButton local = new JRadioButton("Local", savedPathfind == 1);
-		local.addActionListener(new ActionListener() {
-			@Override
-			public void actionPerformed(ActionEvent event) {
-				MineshafterSquaredGUI.this.settings.put("gui.launch.pathfind", MinecraftLauncher.PATH_LOCAL);
-				MineshafterSquaredGUI.this.settings.save();
-			}
-		});
-		JRadioButton defaultMC = new JRadioButton("Default MC", savedPathfind == 2);
-		defaultMC.addActionListener(new ActionListener() {
-			@Override
-			public void actionPerformed(ActionEvent event) {
-				MineshafterSquaredGUI.this.settings.put("gui.launch.pathfind", MinecraftLauncher.PATH_DEFAULTMC);
-				MineshafterSquaredGUI.this.settings.save();
-			}
-		});
-		JButton downloadMCButton = new JButton("Download");
-		downloadMCButton.addActionListener(new ActionListener() {
-			@Override
-			public void actionPerformed(ActionEvent event) {
-				MineshafterSquaredGUI.this.doDownload();
-			}
-		});
-		pathFindOptions.add(autodetect);
-		pathFindOptions.add(local);
-		pathFindOptions.add(defaultMC);
-		
-		launchClientPane.add(launchClientButton);
-		launchClientPane.add(autodetect);
-		launchClientPane.add(local);
-		launchClientPane.add(defaultMC);
-		launchClientPane.add(downloadMCButton);
-		JPanel launchServerPane = new JPanel(new FlowLayout(FlowLayout.LEFT));
-		JButton launchServerButton = new JButton("Launch Server");
-		String settingsServerName = this.settings.getString("server.name");
-		if (settingsServerName == null) {
-			settingsServerName = "minecraft_server";
-		}
-		final JTextField serverName = new JTextField(settingsServerName, 20);
-		final JCheckBox rememberServer = new JCheckBox("Set as default?", true);
-		launchServerButton.addActionListener(new ActionListener() {
-			@Override
-			public void actionPerformed(ActionEvent event) {
-				if (rememberServer.isSelected()) {
-					String serverFileName = serverName.getText();
-					System.out.println(serverFileName);
-					MineshafterSquaredGUI.this.settings.put("server.name", serverFileName);
-					MineshafterSquaredGUI.this.settings.save();
-					MineshafterSquaredGUI.this.goServer();
-				}
-			}
-		});
-		JLabel serverNameExtension = new JLabel(".jar");
-		launchServerPane.add(launchServerButton);
-		launchServerPane.add(serverName);
-		launchServerPane.add(serverNameExtension);
-		launchServerPane.add(rememberServer);
-		
-		launchPane.add(launchClientPane, BorderLayout.NORTH);
-		launchPane.add(launchServerPane, BorderLayout.SOUTH);
-		launchPane.setBorder(BorderFactory.createTitledBorder(BorderFactory.createLineBorder(Color.BLACK), "Launch"));
-		
-		panel.add(launchPane, BorderLayout.SOUTH);
-		
-		return panel;
-	}
-
-	private static JComponent buildVersionsPage() {
-		JPanel panel = new JPanel();
-		
-		
-		
-		return panel;
-	}
-	
-	private JComponent buildSettingsPage() {
-		final JPanel panel = new JPanel(new GridLayout(0, 1));
-		
-		JPanel memoryPane = new JPanel(new GridLayout(0, 2));
-		memoryPane.setBorder(BorderFactory.createTitledBorder(BorderFactory.createLineBorder(Color.BLACK), "Ram"));
-		final JLabel minMemoryLabel = new JLabel("Minimum Memory");
-		long x = (long) Math.floor((double) SimpleUtils.getRam() / 1024 / 1024 / 1024) * 1024;
-		final JSlider minMemorySlider = new JSlider(0, (int) x);
-		minMemorySlider.setValue(this.settings.getInt("runtime.ram.min", 1024) - 1); // -1 to automatically update label
-		minMemorySlider.setMajorTickSpacing(1024);
-		minMemorySlider.setMinorTickSpacing(512);
-		minMemorySlider.setPaintTicks(true);
-		minMemorySlider.setPaintLabels(true);
-		minMemorySlider.setSnapToTicks(true);
-		minMemorySlider.addChangeListener(new ChangeListener() {
-			@Override
-			public void stateChanged(ChangeEvent event) {
-				minMemoryLabel.setText("Minimum memory: -Xms" + ((JSlider) event.getSource()).getValue() + "m");
-			}
-		});
-		memoryPane.add(minMemoryLabel);
-		memoryPane.add(minMemorySlider);
-		final JLabel maxMemoryLabel = new JLabel("Maximum Memory");
-		final JSlider maxMemorySlider = new JSlider(0, (int) x);
-		maxMemorySlider.setValue(this.settings.getInt("runtime.ram.max", 1024) - 1); // -1 to automatically update label
-		maxMemorySlider.setMajorTickSpacing(1024);
-		maxMemorySlider.setMinorTickSpacing(512);
-		maxMemorySlider.setPaintTicks(true);
-		maxMemorySlider.setPaintLabels(true);
-		maxMemorySlider.setSnapToTicks(true);
-		maxMemorySlider.addChangeListener(new ChangeListener() {
-			@Override
-			public void stateChanged(ChangeEvent event) {
-				maxMemoryLabel.setText("Maximum memory: -Xmx" + ((JSlider) event.getSource()).getValue() + "m");
-			}
-		});
-		memoryPane.add(maxMemoryLabel);
-		memoryPane.add(maxMemorySlider);
-		
-		JButton memorySaveButton = new JButton("Save");
-		memorySaveButton.addActionListener(new ActionListener() {
-			@Override
-			public void actionPerformed(ActionEvent event) {
-				List<String> errorMessages = new LinkedList<String>();
-				if (minMemorySlider.getValue() <= 0) {
-					errorMessages.add("Initial memory must be greater than 0");
-				}
-				if (minMemorySlider.getValue() > maxMemorySlider.getValue()) {
-					errorMessages.add("Max memory must be greater or equal to intial memory");
-				}
-				if (errorMessages.size() == 0) {
-					settings.put("runtime.ram.max", Integer.toString(maxMemorySlider.getValue()));
-					settings.put("runtime.ram.min", Integer.toString(minMemorySlider.getValue()));
-					settings.save();
-				} else {
-					String bin = "";
-					for (String message : errorMessages) {
-						bin += message + "\n";
-					}
-					JOptionPane.showMessageDialog(panel, bin);
-				}
-			}
-		});
-		JPanel memorySaveButtonWrapper = new JPanel(new FlowLayout(FlowLayout.RIGHT));
-		memorySaveButtonWrapper.add(memorySaveButton);
-		memoryPane.add(new JPanel());
-		memoryPane.add(memorySaveButtonWrapper);
-		
-		panel.add(memoryPane);
-		
-		return panel;
-	}
-	
-	private static JComponent buildNewsPage() {
-		JPanel panel = new JPanel();
-		
-		
-		
-		return panel;
 	}
 	
 	private static JComponent buildInfoPage() {
@@ -329,7 +110,7 @@ public class MineshafterSquaredGUI implements Runnable {
 		});
 	}
 	
-	private void goLauncher() {
+	public void goLauncher() {
 		String max = this.settings.getString("runtime.ram.max");
 		String min = this.settings.getString("runtime.ram.min");
 		System.out.println("max is null " + (max == null ?  "true" : max));
@@ -362,6 +143,7 @@ public class MineshafterSquaredGUI implements Runnable {
 	        ProcessBuilder builder = new ProcessBuilder(arr);
 	        System.out.println("here");
 	        //builder.redirectOutput();
+	        builder.redirectOutput(ProcessBuilder.Redirect.INHERIT);
 	        builder.redirectErrorStream(true);
 	        builder.start();
 	        for (String a : arr) {
@@ -372,7 +154,7 @@ public class MineshafterSquaredGUI implements Runnable {
 		}
 	}
 	
-	private void goServer() {
+	public void goServer() {
 		String max = this.settings.getString("runtime.ram.max");
 		String min = this.settings.getString("runtime.ram.min");
 		System.out.println("max is " + (max == null ?  "null" : max));
@@ -416,7 +198,7 @@ public class MineshafterSquaredGUI implements Runnable {
 		}
 	}
 	
-	private void doDownload() {
+	public void doDownload() {
 		int pathfind = this.settings.getInt("gui.launch.pathfind", MinecraftLauncher.PATH_LOCAL);
 		if (pathfind == MinecraftLauncher.PATH_AUTODETECT) {
 			pathfind = MinecraftLauncher.PATH_LOCAL;
