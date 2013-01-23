@@ -55,91 +55,8 @@ public class MinecraftLauncher extends Applet implements Runnable {
 	//public MinecraftLauncher() {};
 	
 	public void run() {
-		String cwd = System.getProperty("user.dir");
-		switch (this.pathFind) {
-			case PATH_DEFAULTMC:
-				cwd = Utils.getDefaultMCPath();
-				break;
-			case PATH_LOCAL:
-				// do nothing
-				break;
-			default:
-				if (new File("bin/minecraft.jar").exists()) {
-					// do nothing
-				} else {
-					cwd = Utils.getDefaultMCPath();
-				}
-				break;
-		}
-		//System.out.println("src: " + cwd);
-		
 		try {
-			String[] jarFiles = new String[] {
-				"minecraft.jar", "lwjgl.jar", "lwjgl_util.jar", "jinput.jar"
-			};
-			
-			URL[] urls = new URL[jarFiles.length];
-			File binDir = new File(cwd, "bin");
-			
-			for (int i = 0; i < urls.length; i++) {
-				File f = new File(binDir, jarFiles[i]);
-				urls[i] = f.toURI().toURL();
-				System.out.println("Loading URL: " + urls[i].toString());
-			}
-			System.out.println("Loading natives");
-			String nativesDir = new File(binDir, "natives").toString();
-			
-			System.setProperty("org.lwjgl.librarypath", nativesDir);
-			System.setProperty("net.java.games.input.librarypath", nativesDir);
-			
-			//System.setProperty("user.home", new File(cwd).getParent());
-			URLClassLoader cl = new URLClassLoader(urls);
-			
-			System.setProperty("minecraft.applet.TargetDirectory", cwd);
-			
-			if (System.getProperty("user.dir") != null && false) {
-				System.out.println("here");
-				URLClassLoader gameupdater = new URLClassLoader(new URL[] { new File(cwd, "minecraft.jar").toURI().toURL()});
-				Class game = gameupdater.loadClass("net.minecraft.GameUpdater");
-				Constructor constructor = game.getConstructor(String.class, String.class, Boolean.TYPE);
-				Runnable g = (Runnable) constructor.newInstance(Utils.getMCVersion(new File(new File(cwd, "bin"), "minecraft.jar")), "minecraft.jar", false);
-				
-				String path = cwd + "\\bin\\";
-				Method foo = game.getDeclaredMethod("downloadJars", String.class);
-				Method bar = game.getDeclaredMethod("extractJars", String.class);
-				Method baz = game.getDeclaredMethod("extractNatives", String.class);
-				
-				foo.setAccessible(true);
-				bar.setAccessible(true);
-				baz.setAccessible(true);
-				Method binky = game.getDeclaredMethod("loadJarURLs");
-				binky.setAccessible(true);
-				binky.invoke(g);
-				
-				foo.invoke(g, path);
-				bar.invoke(g, path);
-				baz.invoke(g, path);
-				
-				Field f = g.getClass().getDeclaredField("classLoader");
-				f.setAccessible(true);
-				f.set(null, cl);
-				System.out.println("here");
-				
-				Method m = game.getMethod("createApplet");
-				Applet a = (Applet) m.invoke(g);
-				System.out.println("a is null " + (a == null));
-				MS2Frame frame = new MS2Frame();
-				frame.setVisible(true);
-				Map<String, String> parameters = new HashMap<String, String>();
-				parameters.put("username", this.credentials[0]);
-				parameters.put("sessionid", this.credentials[1]);
-				parameters.put("demo", "false");
-				parameters.put("server", "false");
-				parameters.put("stand-alone", "true");
-				MS2Container container = new MS2Container(parameters, a);
-				frame.start(container);
-				return;
-			}
+			ClassLoader cl = this.getClassLoader();
 			
 			if (this.compatMode) {
 				Class mc = cl.loadClass("net.minecraft.client.Minecraft");
@@ -173,5 +90,57 @@ public class MinecraftLauncher extends Applet implements Runnable {
 		} catch (Exception ex) {
 			ex.printStackTrace();
 		}
+	}
+	
+	public ClassLoader getClassLoader() {
+		try {
+			String cwd = this.getPath();
+			String[] jarFiles = new String[] {
+				"minecraft.jar", "lwjgl.jar", "lwjgl_util.jar", "jinput.jar"
+			};
+			
+			URL[] urls = new URL[jarFiles.length];
+			File binDir = new File(cwd, "bin");
+			
+			for (int i = 0; i < urls.length; i++) {
+				File f = new File(binDir, jarFiles[i]);
+				urls[i] = f.toURI().toURL();
+				System.out.println("Loading URL: " + urls[i].toString());
+			}
+			System.out.println("Loading natives");
+			String nativesDir = new File(binDir, "natives").toString();
+			
+			System.setProperty("org.lwjgl.librarypath", nativesDir);
+			System.setProperty("net.java.games.input.librarypath", nativesDir);
+			
+			//System.setProperty("user.home", new File(cwd).getParent());
+			URLClassLoader cl = new URLClassLoader(urls);
+			
+			System.setProperty("minecraft.applet.TargetDirectory", cwd);
+			return cl;
+		} catch (Exception ex) {
+			ex.printStackTrace();
+		}
+		return this.getClass().getClassLoader();
+	}
+	
+	public String getPath() {
+		String cwd = System.getProperty("user.dir");
+		switch (this.pathFind) {
+			case PATH_DEFAULTMC:
+				cwd = Utils.getDefaultMCPath();
+				break;
+			case PATH_LOCAL:
+				// do nothing
+				break;
+			default:
+				if (new File("bin/minecraft.jar").exists()) {
+					// do nothing
+				} else {
+					cwd = Utils.getDefaultMCPath();
+				}
+				break;
+		}
+		return cwd;
 	}
 }

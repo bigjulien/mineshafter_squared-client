@@ -14,6 +14,7 @@ public class SimpleLinkedLabel extends JLabel {
 	public SimpleLinkedLabel(String text, String url) {
 		super(String.format("<html><a href=\"%s\">%s</a></html>", url, text));
 		this.url = url;
+		this.setToolTipText(url);
 		this.addMouseListener(new MouseListener() {
 			
 			@Override

@@ -57,10 +57,10 @@ public class MineshafterSquaredGUI implements Runnable {
 	private static final int DEFAULT_WIDTH = 854;
 	private static final int DEFAULT_HEIGHT = 480;
 	public static final String MC_DOWNLOAD = "http://s3.amazonaws.com/MinecraftDownload/minecraft.jar";
+	public static final String VERSION = "4.0.0";
 	
 	public static void main(String[] args) {
 		(new MineshafterSquaredGUI(args)).run();
-		System.out.println("hi");
 	}
 	
 	public MineshafterSquaredGUI(String[] args) {
@@ -72,9 +72,8 @@ public class MineshafterSquaredGUI implements Runnable {
 	}
 	
 	public void run() {
-		JFrame frame = new JFrame("Mineshafter Squared");
+		JFrame frame = new JFrame("Mineshafter Squared " + VERSION);
 		frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-		frame.setVisible(true);
 		
 		JPanel contentPane = new JPanel(new BorderLayout());
 		
@@ -90,16 +89,9 @@ public class MineshafterSquaredGUI implements Runnable {
 		frame.pack();
 		frame.setLocationRelativeTo(null);
 		frame.setResizable(false);
+		frame.setVisible(true);
 		
 		System.out.println(SimpleUtils.getRam());
-	}
-	
-	private static JComponent buildInfoPage() {
-		JPanel panel = new JPanel();
-		
-		
-		
-		return panel;
 	}
 	
 	private static File[] listAllMinecraftsIn(File dir) {
@@ -164,7 +156,7 @@ public class MineshafterSquaredGUI implements Runnable {
 		//launcher.run();
 		
 		try {
-			String str = this.getClass().getProtectionDomain().getCodeSource().getLocation().toURI().getPath();
+			//String str = this.getClass().getProtectionDomain().getCodeSource().getLocation().toURI().getPath();
 			List<String> arr = new ArrayList<String>();
 			arr.add("java");
 			if (max != null) {
@@ -199,6 +191,7 @@ public class MineshafterSquaredGUI implements Runnable {
 	}
 	
 	public void doDownload() {
+		/*
 		int pathfind = this.settings.getInt("gui.launch.pathfind", MinecraftLauncher.PATH_LOCAL);
 		if (pathfind == MinecraftLauncher.PATH_AUTODETECT) {
 			pathfind = MinecraftLauncher.PATH_LOCAL;
@@ -224,6 +217,10 @@ public class MineshafterSquaredGUI implements Runnable {
 			System.out.println("done");
 		} catch (Exception ex) {
 			ex.printStackTrace();
-		}
+		}*/
+		MinecraftLauncher m = new MinecraftLauncher(null);
+		m.setPathfind(MinecraftLauncher.PATH_LOCAL);
+		GameUpdaterProxy proxy = new GameUpdaterProxy(m.getPath());
+		proxy.update();
 	}
 }

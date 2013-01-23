@@ -57,8 +57,18 @@ public class InfoTabPanel extends AbstractTabPanel {
 		this.add(infoPane);
 		
 		JPanel usagePane = new JPanel(new FlowLayout(FlowLayout.LEFT));
+		String usage = "<ul>"
+				+ "<li>This launcher is portable</li>"
+				+ "<li>If you choose 'Default MC' it will download/load Minecraft from the default location</li>"
+				+ "<li>If you choose 'local', it will play in the current directory</li>"
+				+ "<li>If you choose 'Autodetect', it will first look for Minecraft in the local directory, and fall back to the default location</li>"
+				+ "<li>It uses Kyaotic Sully's cool skin and texture system!</li>"
+				+ "<li>Allows launching with custom ram</li>"
+				+ "<li>It works with Forge!</li>"
+				+ "<li>Hope you enjoy it!</li>"
+				+ "</ul>";
 		usagePane.setBorder(BorderFactory.createTitledBorder(BorderFactory.createLineBorder(Color.BLACK), "Usage"));
-		usagePane.add(new JLabel(String.format("<html><div style=\"width: %dpx;\">%s</div>", 400, "Hello world!")));
+		usagePane.add(new JLabel(String.format("<html><div style=\"width: %dpx;\">%s</div>", 400, usage)));
 		this.add(usagePane);
 	}
 }
