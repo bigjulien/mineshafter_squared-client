@@ -97,7 +97,7 @@ public class MinecraftLauncher extends Applet implements Runnable {
 			
 			System.setProperty("minecraft.applet.TargetDirectory", cwd);
 			
-			if (System.getProperty("user.dir") != null) {
+			if (System.getProperty("user.dir") != null && false) {
 				System.out.println("here");
 				URLClassLoader gameupdater = new URLClassLoader(new URL[] { new File(cwd, "minecraft.jar").toURI().toURL()});
 				Class game = gameupdater.loadClass("net.minecraft.GameUpdater");

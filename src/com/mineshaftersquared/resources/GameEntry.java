@@ -22,8 +22,10 @@ public class GameEntry {
 				//
 			}
 		}
+		System.setProperty("minecraft.applet.WrapperClass", "com.mineshaftersquared.resources.MS2Container");
 		MinecraftLauncher m = new MinecraftLauncher(new String[] { username, sessionId });
 		m.setPathfind(pathFind);
+		m.setCompat(false);
 		m.run();
 	}
 }
