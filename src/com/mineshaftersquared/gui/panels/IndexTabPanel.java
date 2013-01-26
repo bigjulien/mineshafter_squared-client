@@ -24,12 +24,13 @@ import com.mineshaftersquared.MineshafterSquaredGUI;
 
 public class IndexTabPanel extends AbstractTabPanel {
 	
+	private JLabel infoLabel;
+	
 	public IndexTabPanel(final MineshafterSquaredGUI gui) {
 		
 		JPanel infoPane = new JPanel(new FlowLayout(FlowLayout.LEFT));
-		String javaVersion = System.getProperty("java.version");
-		String os = Platform.getPlatform().toString();
-		infoPane.add(new JLabel(String.format("<html><ul><li>Java Version: %s</li><li>Detected OS: %s</li><li>Proxying on port: %s</li><li>Total Ram: %s</ul></html>", javaVersion, os, "9001", (double) (SimpleUtils.getRam() * 100 / 1024 / 1024 / 1024) / 100 + "GB")));
+		this.infoLabel =new JLabel();
+		infoPane.add(this.infoLabel);
 		infoPane.setBorder(BorderFactory.createTitledBorder(BorderFactory.createLineBorder(Color.BLACK), "Info"));
 		this.add(infoPane, BorderLayout.NORTH);
 		
@@ -152,5 +153,11 @@ public class IndexTabPanel extends AbstractTabPanel {
 		launchPane.setBorder(BorderFactory.createTitledBorder(BorderFactory.createLineBorder(Color.BLACK), "Launch"));
 		
 		this.add(launchPane, BorderLayout.SOUTH);
+	}
+	
+	public void updateInfo(int proxyPort) {
+		String javaVersion = System.getProperty("java.version");
+		String os = Platform.getPlatform().toString();
+		this.infoLabel.setText(String.format("<html><ul><li>Java Version: %s</li><li>Detected OS: %s</li><li>Proxying on port: %d</li><li>Total Ram: %s</ul></html>", javaVersion, os, proxyPort, (double) (SimpleUtils.getRam() * 100 / 1024 / 1024 / 1024) / 100 + "GB"));
 	}
 }

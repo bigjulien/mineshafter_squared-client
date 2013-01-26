@@ -8,13 +8,13 @@ import java.util.Hashtable;
 import java.util.regex.Pattern;
 import java.net.BindException;
 
-import com.mineshaftersquared.Logger;
-import com.mineshaftersquared.Version;
+import com.creatifcubed.simpleapi.SimpleVersion;
+import com.mineshaftersquared.resources.*;
 
 
 public class MineProxy extends Thread {
 	public static String authServer;
-	public Version version;
+	public SimpleVersion version;
 	private int port = -1;
 
 	// Patterns
@@ -32,7 +32,7 @@ public class MineProxy extends Thread {
 	public Hashtable<String, byte[]> skinCache;
 	public Hashtable<String, byte[]> cloakCache;
 
-	public MineProxy(Version version, String currentAuthServer) {
+	public MineProxy(SimpleVersion version, String currentAuthServer) {
 		setName("MineProxy Thread");
 
 		MineProxy.authServer = currentAuthServer; // TODO maybe change this leave it for now 

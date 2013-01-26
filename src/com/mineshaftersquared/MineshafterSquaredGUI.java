@@ -39,11 +39,13 @@ import javax.swing.event.ChangeListener;
 
 import com.creatifcubed.simpleapi.ISimpleSettings;
 import com.creatifcubed.simpleapi.Platform;
+import com.creatifcubed.simpleapi.SimpleVersion;
 import com.creatifcubed.simpleapi.SimpleXMLSettings;
 import com.creatifcubed.simpleapi.SimpleUtils;
 import com.mineshaftersquared.gui.panels.IndexTabPanel;
 import com.mineshaftersquared.gui.panels.InfoTabPanel;
 import com.mineshaftersquared.gui.panels.SettingsTabPanel;
+import com.mineshaftersquared.proxy.MineProxy;
 import com.mineshaftersquared.resources.MS2Frame;
 import com.mineshaftersquared.resources.Utils;
 
@@ -53,11 +55,13 @@ public class MineshafterSquaredGUI implements Runnable {
 	public ISimpleSettings settings;
 	public JTextField username;
 	public JLabel sessionId;
+	public int proxyPort;
+	public IndexTabPanel indexPane;
 	
 	private static final int DEFAULT_WIDTH = 854;
 	private static final int DEFAULT_HEIGHT = 480;
 	public static final String MC_DOWNLOAD = "http://s3.amazonaws.com/MinecraftDownload/minecraft.jar";
-	public static final String VERSION = "4.0.0";
+	public static final SimpleVersion VERSION = new SimpleVersion("4.0.0");
 	
 	public static void main(String[] args) {
 		(new MineshafterSquaredGUI(args)).run();
@@ -69,16 +73,18 @@ public class MineshafterSquaredGUI implements Runnable {
 		this.settings = new SimpleXMLSettings("ms2-resources/settings.xml");
 		this.username = null;
 		this.sessionId = null;
+		this.proxyPort = 0;
 	}
 	
 	public void run() {
-		JFrame frame = new JFrame("Mineshafter Squared " + VERSION);
+		JFrame frame = new JFrame("Mineshafter Squared " + VERSION.toString());
 		frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		
 		JPanel contentPane = new JPanel(new BorderLayout());
 		
 		JTabbedPane tabbedPane = new JTabbedPane();
-		tabbedPane.add("Main", new IndexTabPanel(this));
+		this.indexPane = new IndexTabPanel(this);
+		tabbedPane.add("Main", this.indexPane);
 		//tabbedPane.add("Versions", buildVersionsPage());
 		tabbedPane.add("Settings", new SettingsTabPanel(this));
 		//tabbedPane.add("News", buildNewsPage());
@@ -92,6 +98,22 @@ public class MineshafterSquaredGUI implements Runnable {
 		frame.setVisible(true);
 		
 		System.out.println(SimpleUtils.getRam());
+		
+		this.startProxy();
+	}
+	
+	public void startProxy() {
+		MineProxy proxy = new MineProxy(VERSION, ""); // create proxy
+		proxy.start(); // launch proxy
+		this.proxyPort = proxy.getPort();
+		
+
+		System.setProperty("http.proxyHost", "127.0.0.1");
+		System.setProperty("http.proxyPort", Integer.toString(this.proxyPort));
+		System.setProperty("java.net.preferIPv4Stack", "true");
+		
+		this.indexPane.updateInfo(this.proxyPort);
+		
 	}
 	
 	private static File[] listAllMinecraftsIn(File dir) {
@@ -122,6 +144,9 @@ public class MineshafterSquaredGUI implements Runnable {
 			//arr.add("-Dsun.java2d.d3d=false");
 			//arr.add("-Dsun.java2d.opengl=false");
 			//arr.add("-Dsun.java2d.pmoffscreen=false");
+			
+			arr.add("-Dhttp.proxyHost=127.0.0.1");
+			arr.add("-Dhttp.proxyPort=" + this.proxyPort);
 
 			arr.add("-classpath");
 	        arr.add(str);

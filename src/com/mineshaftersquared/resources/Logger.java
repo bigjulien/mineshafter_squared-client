@@ -5,23 +5,20 @@ import java.io.FileWriter;
 import java.io.IOException;
 
 public class Logger {
-	private static String logName 			= "[Mineshafter Squared]";
-	private static BufferedWriter logFile 	= null; 
+	private static String logName = "[Mineshafter Squared]";
+	private static BufferedWriter logFile = null;
 
-	public static void log(String output)
-	{
+	public static void log(String output) {
 		String message = logName + " " + output;
 
 		System.out.println(message);
 
-		if(logFile != null)
-		{
+		if (logFile != null) {
 			write(message);
 		}
 	}
 
-	private static void write(String output)
-	{
+	private static void write(String output) {
 		try {
 			logFile.append(output);
 			logFile.newLine();
@@ -31,9 +28,8 @@ public class Logger {
 		}
 	}
 
-	public static void setFile(String filePath)
-	{
-		if(filePath != null && !filePath.trim().toLowerCase().equals("none")) {
+	public static void setFile(String filePath) {
+		if (filePath != null && !filePath.trim().toLowerCase().equals("none")) {
 			try {
 				FileWriter fstream = new FileWriter(filePath);
 				logFile = new BufferedWriter(fstream);
