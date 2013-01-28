@@ -24,6 +24,7 @@ public class GameUpdaterProxy {
 	public Applet update() {
 		try {
 			new File(this.dir, "bin").mkdir();
+			System.out.println("this dir " + this.dir);
 			URLClassLoader gameupdater = new URLClassLoader(new URL[] { new File(this.dir, "minecraft.jar").toURI().toURL()});
 			Class game = gameupdater.loadClass("net.minecraft.GameUpdater");
 			Constructor constructor = game.getConstructor(String.class, String.class, Boolean.TYPE);

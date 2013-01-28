@@ -6,6 +6,10 @@ import java.awt.FlowLayout;
 import java.awt.GridLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.io.ByteArrayOutputStream;
+import java.io.IOException;
+import java.io.OutputStreamWriter;
+import java.net.URL;
 
 import javax.swing.BorderFactory;
 import javax.swing.ButtonGroup;
@@ -17,8 +21,7 @@ import javax.swing.JPasswordField;
 import javax.swing.JRadioButton;
 import javax.swing.JTextField;
 
-import com.creatifcubed.simpleapi.Platform;
-import com.creatifcubed.simpleapi.SimpleUtils;
+import com.creatifcubed.simpleapi.*;
 import com.mineshaftersquared.MinecraftLauncher;
 import com.mineshaftersquared.MineshafterSquaredGUI;
 
@@ -41,6 +44,8 @@ public class IndexTabPanel extends AbstractTabPanel {
 		JLabel passwordLabel = new JLabel("Password");
 		final JTextField passwordField = new JPasswordField(gui.settings.getString("password"), 20);
 		final JCheckBox rememberMe = new JCheckBox("Remember me?", true);
+		JLabel sessionIDDescription = new JLabel("Session ID");
+		final JLabel sessionID = new JLabel("Not logged in");
 		JButton loginButton = new JButton("Login");
 		loginButton.addActionListener(new ActionListener() {
 
@@ -51,11 +56,35 @@ public class IndexTabPanel extends AbstractTabPanel {
 					gui.settings.put("password", passwordField.getText());
 					gui.settings.save();
 				}
+				
+				String url = "http://alpha.mineshaftersquared.com/game/get_version";
+				
+				ByteArrayOutputStream out = new ByteArrayOutputStream();
+				OutputStreamWriter writer = new OutputStreamWriter(out);
+
+				try {
+					writer.write("user=" + usernameField.getText() + "&password=" + passwordField.getText());
+					writer.flush();
+				} catch(IOException e) {
+					e.printStackTrace();
+				}
+				
+				try {
+					byte[] data = new SimpleRequest(new URL(url)).doPost(out.toByteArray());
+					System.out.println("DATA RETURNED: " + new String(data));
+					String id[] = new String(data).split(":");
+					try {
+						sessionID.setText(id[3]);
+					} catch (ArrayIndexOutOfBoundsException ignore) {
+						//
+					}
+					
+				} catch (Exception ex) {
+					
+				}
 			}
 			
 		});
-		JLabel sessionIDDescription = new JLabel("Session ID");
-		JLabel sessionID = new JLabel("Not logged in");
 		gui.sessionId = sessionID;
 		
 		loginPane.add(usernameLabel);
