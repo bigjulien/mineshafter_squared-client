@@ -16,6 +16,7 @@ import javax.swing.ButtonGroup;
 import javax.swing.JButton;
 import javax.swing.JCheckBox;
 import javax.swing.JLabel;
+import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JPasswordField;
 import javax.swing.JRadioButton;
@@ -37,7 +38,7 @@ public class IndexTabPanel extends AbstractTabPanel {
 		infoPane.setBorder(BorderFactory.createTitledBorder(BorderFactory.createLineBorder(Color.BLACK), "Info"));
 		this.add(infoPane, BorderLayout.NORTH);
 		
-		JPanel loginPane = new JPanel(new GridLayout(0, 2));
+		final JPanel loginPane = new JPanel(new GridLayout(0, 2));
 		JLabel usernameLabel = new JLabel("Username");
 		final JTextField usernameField = new JTextField(gui.settings.getString("username"), 20);
 		gui.username = usernameField;
@@ -106,7 +107,15 @@ public class IndexTabPanel extends AbstractTabPanel {
 		launchClientButton.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent event) {
-				gui.goLauncher();
+				if (sessionID.getText().matches("\\d+")) {
+					gui.goLauncher();
+				} else {
+					String response = JOptionPane.showInputDialog("You are not logged in.\nSpecify offline username.", usernameField.getText());
+					if (response != null) {
+						usernameField.setText(response);
+						gui.goLauncher();
+					}
+				}
 			}
 		});
 		int savedPathfind = gui.settings.getInt("gui.launch.pathfind", MinecraftLauncher.PATH_AUTODETECT);

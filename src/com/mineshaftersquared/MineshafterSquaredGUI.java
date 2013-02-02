@@ -39,9 +39,11 @@ import javax.swing.event.ChangeListener;
 
 import com.creatifcubed.simpleapi.ISimpleSettings;
 import com.creatifcubed.simpleapi.Platform;
+import com.creatifcubed.simpleapi.SimpleRequest;
 import com.creatifcubed.simpleapi.SimpleVersion;
 import com.creatifcubed.simpleapi.SimpleXMLSettings;
 import com.creatifcubed.simpleapi.SimpleUtils;
+import com.mineshaftersquared.gui.panels.FeedbackTabPanel;
 import com.mineshaftersquared.gui.panels.IndexTabPanel;
 import com.mineshaftersquared.gui.panels.InfoTabPanel;
 import com.mineshaftersquared.gui.panels.SettingsTabPanel;
@@ -89,6 +91,7 @@ public class MineshafterSquaredGUI implements Runnable {
 		tabbedPane.add("Settings", new SettingsTabPanel(this));
 		//tabbedPane.add("News", buildNewsPage());
 		tabbedPane.add("Info", new InfoTabPanel());
+		tabbedPane.add("Feedback", new FeedbackTabPanel());
 		contentPane.add(tabbedPane);
 		
 		frame.setContentPane(contentPane);
@@ -100,10 +103,27 @@ public class MineshafterSquaredGUI implements Runnable {
 		System.out.println(SimpleUtils.getRam());
 		
 		this.startProxy();
+		
+		if (clientHasUpdate()) {
+			JOptionPane.showMessageDialog(null, "There is an update at ms2.creatifcubed.com");
+		}
+	}
+	
+	public static boolean clientHasUpdate() {
+		try {
+			String result = new String(new SimpleRequest(new URL("http://ms2.creatifcubed.com/resources/latestversion.php")).doGet());
+			SimpleVersion latest = new SimpleVersion(result);
+			System.out.println("Latest version: " + latest.toString());
+			return VERSION.shouldUpdateTo(latest);
+		} catch (Exception ex) {
+			JOptionPane.showMessageDialog(null, "Unable to check update. Please go manually to ms2.creatifcubed.com");
+		}
+		return false;
 	}
 	
 	public void startProxy() {
 		MineProxy proxy = new MineProxy(VERSION, ""); // create proxy
+		MineProxy.authServer = "alpha.mineshaftersquared.com";
 		proxy.start(); // launch proxy
 		this.proxyPort = proxy.getPort();
 		
@@ -191,6 +211,10 @@ public class MineshafterSquaredGUI implements Runnable {
 			if (min != null) {
 				arr.add("-Xms" + min + "m");
 			}
+			
+
+			arr.add("-Dhttp.proxyHost=127.0.0.1");
+			arr.add("-Dhttp.proxyPort=" + this.proxyPort);
 
 			arr.add("-jar");
 	        String server = this.settings.getString("server.name");

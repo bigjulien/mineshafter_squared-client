@@ -23,7 +23,7 @@ public class SimpleVersion {
 		if (newerVersion.major > this.major) {
 			return true;
 		}
-		if (newerVersion.major == this.major && newerVersion.minor > newerVersion.minor) {
+		if (newerVersion.minor > this.minor) {
 			return true;
 		}
 		return false;
