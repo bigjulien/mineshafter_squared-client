@@ -42,6 +42,7 @@ public class GameUpdaterProxy {
 			System.out.println("THIS DIR: " + this.dir);
 			Runnable g = (Runnable) constructor.newInstance(oldVersion, "minecraft.jar", false);
 			
+			
 			String path = this.dir + "/bin/";
 			Method foo = game.getDeclaredMethod("downloadJars", String.class);
 			Method bar = game.getDeclaredMethod("extractJars", String.class);

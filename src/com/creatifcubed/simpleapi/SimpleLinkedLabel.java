@@ -12,7 +12,7 @@ public class SimpleLinkedLabel extends JLabel {
 	private String url;
 	
 	public SimpleLinkedLabel(String text, String url) {
-		super(String.format("<html><a href=\"%s\">%s</a></html>", url, text));
+		super(String.format("<html><a href=\"%1$s\">%2$s</a></html>", url, text));
 		this.url = url;
 		this.setToolTipText(url);
 		this.addMouseListener(new MouseListener() {

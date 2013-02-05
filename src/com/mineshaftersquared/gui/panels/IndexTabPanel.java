@@ -58,9 +58,9 @@ public class IndexTabPanel extends AbstractTabPanel {
 					gui.settings.save();
 				}
 				
-				String url = "http://alpha.mineshaftersquared.com/game/get_version";
+				final String url = "http://alpha.mineshaftersquared.com/game/get_version";
 				
-				ByteArrayOutputStream out = new ByteArrayOutputStream();
+				final ByteArrayOutputStream out = new ByteArrayOutputStream();
 				OutputStreamWriter writer = new OutputStreamWriter(out);
 
 				try {
@@ -71,14 +71,20 @@ public class IndexTabPanel extends AbstractTabPanel {
 				}
 				
 				try {
-					byte[] data = new SimpleRequest(new URL(url)).doPost(out.toByteArray());
-					System.out.println("DATA RETURNED: " + new String(data));
-					String id[] = new String(data).split(":");
-					try {
-						sessionID.setText(id[3]);
-					} catch (ArrayIndexOutOfBoundsException ignore) {
-						//
-					}
+					new SimpleWaiter("Logging in", new Runnable() {
+						@Override
+						public void run() {
+							try {
+							byte[] data = new SimpleRequest(new URL(url)).doPost(out.toByteArray());
+							System.out.println("DATA RETURNED: " + new String(data));
+							String id[] = new String(data).split(":");
+							sessionID.setText(id[3]);
+							} catch (Exception ignore) {
+								//
+							}
+						}
+					}, gui.mainWindow).run();
+					
 					
 				} catch (Exception ex) {
 					
@@ -155,11 +161,21 @@ public class IndexTabPanel extends AbstractTabPanel {
 		pathFindOptions.add(local);
 		pathFindOptions.add(defaultMC);
 		
+		JCheckBox closeOnStart = new JCheckBox("Close on start?", gui.settings.getInt("gui.launch.closeonstart", 0) != 0);
+		closeOnStart.addActionListener(new ActionListener() {
+			@Override
+			public void actionPerformed(ActionEvent event) {
+				gui.settings.put("gui.launch.closeonstart", ((JCheckBox) event.getSource()).isSelected() ? 1 : 0);
+				gui.settings.save();
+			}
+		});
+		
 		launchClientPane.add(launchClientButton);
 		launchClientPane.add(autodetect);
 		launchClientPane.add(local);
 		launchClientPane.add(defaultMC);
 		launchClientPane.add(downloadMCButton);
+		launchClientPane.add(closeOnStart);
 		JPanel launchServerPane = new JPanel(new FlowLayout(FlowLayout.LEFT));
 		JButton launchServerButton = new JButton("Launch Server");
 		String settingsServerName = gui.settings.getString("server.name");

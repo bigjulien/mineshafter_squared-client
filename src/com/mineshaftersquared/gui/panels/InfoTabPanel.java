@@ -1,6 +1,7 @@
 package com.mineshaftersquared.gui.panels;
 
 import java.awt.Color;
+import java.awt.Cursor;
 import java.awt.Desktop;
 import java.awt.FlowLayout;
 import java.awt.GridBagConstraints;
@@ -15,8 +16,10 @@ import java.net.URISyntaxException;
 import javax.swing.BorderFactory;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
+import javax.swing.JTextPane;
 
 import com.creatifcubed.simpleapi.SimpleLinkedLabel;
+import com.creatifcubed.simpleapi.SimpleSelectableLabel;
 
 public class InfoTabPanel extends AbstractTabPanel {
 	public InfoTabPanel() {
@@ -50,9 +53,19 @@ public class InfoTabPanel extends AbstractTabPanel {
 		c.gridy = 2;
 		infoPane.add(new SimpleLinkedLabel("Ryan", "http://www.kayoticlabs.com/"), c);
 		c.gridy = 3;
-		infoPane.add(new JLabel("Adrian"), c);
+		infoPane.add(new SimpleLinkedLabel("Adrian", "http://creatifcubed.com"), c);
+		//infoPane.add(new JLabel("Adrian"), c);
 		c.gridy = 4;
 		infoPane.add(new JLabel("Rodney"), c);
+		
+		c.gridx = 2;
+		c.gridy = 1;
+		infoPane.add(new SimpleSelectableLabel("github.com/Raekye/mineshafter_squared-client"), c);
+		c.gridy = 2;
+		infoPane.add(new SimpleSelectableLabel("kayoticlabs.com"), c);
+		c.gridy = 3;
+		infoPane.add(new SimpleSelectableLabel("creatifcubed.com"), c);
+		//infoPane.add(new JLabel("Adrian"), c);
 		
 		this.add(infoPane);
 		

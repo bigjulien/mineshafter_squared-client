@@ -8,9 +8,11 @@ import java.awt.GridLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.net.URL;
+import java.net.URLEncoder;
 
 import javax.swing.BorderFactory;
 import javax.swing.JButton;
+import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
@@ -18,13 +20,17 @@ import javax.swing.JScrollPane;
 import javax.swing.JTextArea;
 
 import com.creatifcubed.simpleapi.SimpleRequest;
+import com.creatifcubed.simpleapi.SimpleWaiter;
 
 public class FeedbackTabPanel extends AbstractTabPanel {
+	private JFrame mainFrame;
 	
-	public FeedbackTabPanel() {
+	public FeedbackTabPanel(JFrame mainFrame) {
+		this.mainFrame = mainFrame;
 		JPanel formPane = new JPanel(new GridBagLayout());
 		GridBagConstraints c = new GridBagConstraints();
 		c.anchor = GridBagConstraints.WEST;
+		
 		
 		formPane.setBorder(BorderFactory.createTitledBorder(BorderFactory.createLineBorder(Color.BLACK), "Submit Feedback"));
 		
@@ -43,12 +49,23 @@ public class FeedbackTabPanel extends AbstractTabPanel {
 		submit.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent event) {
-				try {
-					new SimpleRequest(new URL("http://ms2.creatifcubed.com/resources/feedback.php")).doPost(content.getText().getBytes());
-				} catch (Exception ex) {
-					ex.printStackTrace();
+				if (content.getText().trim().isEmpty()) {
+					JOptionPane.showMessageDialog(null, "Input empty");
+				} else {
+					new SimpleWaiter("Submitting", new Runnable () {
+						@Override
+						public void run() {
+							try {
+								String userInput = URLEncoder.encode(content.getText().trim(), "utf-8");
+								//System.out.println(userInput);
+								new SimpleRequest(new URL("http://ms2.creatifcubed.com/resources/feedback.php")).doPost(("content=" + userInput).getBytes());
+							} catch (Exception ignore) {
+								//
+							}
+						}
+					}, FeedbackTabPanel.this.mainFrame).run();
+					JOptionPane.showMessageDialog(null, "Thanks for your input! Keep updated on the website.");
 				}
-				JOptionPane.showMessageDialog(null, "Thanks for your input! Keep updated on the website.");
 			}
 		});
 		

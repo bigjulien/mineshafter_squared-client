@@ -25,11 +25,13 @@ import javax.swing.ButtonGroup;
 import javax.swing.JButton;
 import javax.swing.JCheckBox;
 import javax.swing.JComponent;
+import javax.swing.JDialog;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JPasswordField;
+import javax.swing.JProgressBar;
 import javax.swing.JRadioButton;
 import javax.swing.JSlider;
 import javax.swing.JTabbedPane;
@@ -41,6 +43,7 @@ import com.creatifcubed.simpleapi.ISimpleSettings;
 import com.creatifcubed.simpleapi.Platform;
 import com.creatifcubed.simpleapi.SimpleRequest;
 import com.creatifcubed.simpleapi.SimpleVersion;
+import com.creatifcubed.simpleapi.SimpleWaiter;
 import com.creatifcubed.simpleapi.SimpleXMLSettings;
 import com.creatifcubed.simpleapi.SimpleUtils;
 import com.mineshaftersquared.gui.panels.FeedbackTabPanel;
@@ -59,11 +62,12 @@ public class MineshafterSquaredGUI implements Runnable {
 	public JLabel sessionId;
 	public int proxyPort;
 	public IndexTabPanel indexPane;
+	public JFrame mainWindow;
 	
 	private static final int DEFAULT_WIDTH = 854;
 	private static final int DEFAULT_HEIGHT = 480;
 	public static final String MC_DOWNLOAD = "http://s3.amazonaws.com/MinecraftDownload/minecraft.jar";
-	public static final SimpleVersion VERSION = new SimpleVersion("4.0.0");
+	public static final SimpleVersion VERSION = new SimpleVersion("4.0.1");
 	
 	public static void main(String[] args) {
 		(new MineshafterSquaredGUI(args)).run();
@@ -76,11 +80,13 @@ public class MineshafterSquaredGUI implements Runnable {
 		this.username = null;
 		this.sessionId = null;
 		this.proxyPort = 0;
+		this.mainWindow = null;
 	}
 	
 	public void run() {
 		JFrame frame = new JFrame("Mineshafter Squared " + VERSION.toString());
 		frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+		this.mainWindow = frame;
 		
 		JPanel contentPane = new JPanel(new BorderLayout());
 		
@@ -91,7 +97,7 @@ public class MineshafterSquaredGUI implements Runnable {
 		tabbedPane.add("Settings", new SettingsTabPanel(this));
 		//tabbedPane.add("News", buildNewsPage());
 		tabbedPane.add("Info", new InfoTabPanel());
-		tabbedPane.add("Feedback", new FeedbackTabPanel());
+		tabbedPane.add("Feedback", new FeedbackTabPanel(this.mainWindow));
 		contentPane.add(tabbedPane);
 		
 		frame.setContentPane(contentPane);
@@ -145,10 +151,8 @@ public class MineshafterSquaredGUI implements Runnable {
 	}
 	
 	public void goLauncher() {
-		String max = this.settings.getString("runtime.ram.max");
-		String min = this.settings.getString("runtime.ram.min");
-		System.out.println("max is null " + (max == null ?  "true" : max));
-		System.out.println("min is null " + (min == null ?  "true" : min));
+		int max = this.settings.getInt("runtime.ram.max", 0);
+		int min = this.settings.getInt("runtime.ram.min", 0);
 		
 		//MinecraftLauncher launcher = new MinecraftLauncher(/*args*/ new String[] { "Adrian", "a"}, new Dimension(854, 500), false, false);
 		//launcher.run();
@@ -157,8 +161,11 @@ public class MineshafterSquaredGUI implements Runnable {
 			String str = this.getClass().getProtectionDomain().getCodeSource().getLocation().toURI().getPath();
 			List<String> arr = new ArrayList<String>();
 			arr.add("java");
-			if (max != null) {
+			if (max != 0) {
 				arr.add("-Xmx" + max + "m");
+			}
+			if (min != 0) {
+				arr.add("-Xms" + min + "m");
 			}
 			//arr.add("-Dsun.java2d.noddraw=true");
 			//arr.add("-Dsun.java2d.d3d=false");
@@ -182,20 +189,19 @@ public class MineshafterSquaredGUI implements Runnable {
 	        //builder.redirectOutput();
 	        builder.redirectOutput(ProcessBuilder.Redirect.INHERIT);
 	        builder.redirectErrorStream(true);
-	        builder.start();
+	        Process p = builder.start();
 	        for (String a : arr) {
 	        	System.out.print(a + " ");
 	        }
+	        hideLauncher(p);
 		} catch (Exception ex) {
 			ex.printStackTrace();
 		}
 	}
 	
 	public void goServer() {
-		String max = this.settings.getString("runtime.ram.max");
-		String min = this.settings.getString("runtime.ram.min");
-		System.out.println("max is " + (max == null ?  "null" : max));
-		System.out.println("min is " + (min == null ?  "null" : min));
+		int max = this.settings.getInt("runtime.ram.max", 0);
+		int min = this.settings.getInt("runtime.ram.min", 0);
 		
 		//MinecraftLauncher launcher = new MinecraftLauncher(/*args*/ new String[] { "Adrian", "a"}, new Dimension(854, 500), false, false);
 		//launcher.run();
@@ -204,11 +210,11 @@ public class MineshafterSquaredGUI implements Runnable {
 			//String str = this.getClass().getProtectionDomain().getCodeSource().getLocation().toURI().getPath();
 			List<String> arr = new ArrayList<String>();
 			arr.add("java");
-			if (max != null) {
+			if (max != 0) {
 				arr.add("-Xmx" + max + "m");
 				//arr.add("-Xms" + max + "m");
 			}
-			if (min != null) {
+			if (min != 0) {
 				arr.add("-Xms" + min + "m");
 			}
 			
@@ -230,17 +236,29 @@ public class MineshafterSquaredGUI implements Runnable {
 	        builder.redirectOutput();
 	        builder.redirectError();
 	        builder.redirectOutput(ProcessBuilder.Redirect.INHERIT);
-	        builder.start();
+	        Process p = builder.start();
 	        for (String a : arr) {
 	        	System.out.print(a + " ");
 	        }
+	        hideLauncher(p);
 		} catch (Exception ex) {
 			ex.printStackTrace();
 		}
 	}
 	
+	private void hideLauncher(Process p) {
+		if (this.settings.getInt("gui.launch.closeonstart", 0) != 0) {
+			this.mainWindow.setVisible(false);
+			try {
+				p.waitFor();
+			} catch (InterruptedException ex) {
+				ex.printStackTrace();
+			}
+			System.exit(1);
+		}
+	}
+	
 	public void doDownload() {
-		/*
 		int pathfind = this.settings.getInt("gui.launch.pathfind", MinecraftLauncher.PATH_LOCAL);
 		if (pathfind == MinecraftLauncher.PATH_AUTODETECT) {
 			pathfind = MinecraftLauncher.PATH_LOCAL;
@@ -257,19 +275,16 @@ public class MineshafterSquaredGUI implements Runnable {
 			bin.mkdir();
 		}
 		
-		System.out.println(bin.getAbsolutePath());
-		try {
-			URL location = new URL(MC_DOWNLOAD);
-			ReadableByteChannel rbc = Channels.newChannel(location.openStream());
-			FileOutputStream fos = new FileOutputStream(new File(bin, "minecraft.jar"));
-			fos.getChannel().transferFrom(rbc, 0, 1 << 24);
-			System.out.println("done");
-		} catch (Exception ex) {
-			ex.printStackTrace();
-		}*/
-		MinecraftLauncher m = new MinecraftLauncher(null);
-		m.setPathfind(MinecraftLauncher.PATH_LOCAL);
-		GameUpdaterProxy proxy = new GameUpdaterProxy(m.getPath());
-		proxy.update();
+		final int pathFindFinal = pathfind;
+		new SimpleWaiter("Downloading", new Runnable() {
+			@Override
+			public void run() {
+				MinecraftLauncher m = new MinecraftLauncher(null);
+				m.setPathfind(pathFindFinal);
+				GameUpdaterProxy proxy = new GameUpdaterProxy(m.getPath());
+				proxy.update();
+			}
+		}, this.mainWindow).run();
+		
 	}
 }
