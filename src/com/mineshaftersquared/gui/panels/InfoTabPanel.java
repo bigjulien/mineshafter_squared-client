@@ -72,6 +72,7 @@ public class InfoTabPanel extends AbstractTabPanel {
 		JPanel usagePane = new JPanel(new FlowLayout(FlowLayout.LEFT));
 		String usage = "<ul>"
 				+ "<li>This launcher is portable</li>"
+				+ "<li>Jar should work by doubleclicking. If not, or if you need to debug, run the scripts (send us console output)</li>"
 				+ "<li>If you choose 'Default MC' it will download/load Minecraft from the default location</li>"
 				+ "<li>If you choose 'local', it will play in the current directory</li>"
 				+ "<li>If you choose 'Autodetect', it will first look for Minecraft in the local directory, and fall back to the default location</li>"

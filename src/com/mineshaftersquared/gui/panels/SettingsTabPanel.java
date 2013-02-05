@@ -44,7 +44,7 @@ public class SettingsTabPanel extends AbstractTabPanel {
 		c.gridy = row++;
 		memoryPane.add(new JLabel("You have " + maxRam + " MBs of ram. Set to 0 ram to ignore setting."), c);
 		
-		SpinnerNumberModel minMemorySpinnerModel = new SpinnerNumberModel(constrain(gui.settings.getInt("runtime.ram.min", 1024).intValue(), 0, maxRam), 0, maxRam, RAM_STEP_SIZE);
+		SpinnerNumberModel minMemorySpinnerModel = new SpinnerNumberModel(constrain(gui.settings.getInt("runtime.ram.min", 0).intValue(), 0, maxRam), 0, maxRam, RAM_STEP_SIZE);
 		final JSpinner minMemorySpinner = new JSpinner(minMemorySpinnerModel);
 		c.gridx = 0;
 		c.gridy = row++;
@@ -57,7 +57,7 @@ public class SettingsTabPanel extends AbstractTabPanel {
 		c.gridx = 3;
 		memoryPane.add(new JLabel("m"), c);
 		final JLabel maxMemoryLabel = new JLabel("Maximum Memory");
-		SpinnerNumberModel maxMemorySpinnerModel = new SpinnerNumberModel(gui.settings.getInt("runtime.ram.max").intValue(), 0, maxRam, RAM_STEP_SIZE);
+		SpinnerNumberModel maxMemorySpinnerModel = new SpinnerNumberModel(gui.settings.getInt("runtime.ram.max", 0).intValue(), 0, maxRam, RAM_STEP_SIZE);
 		final JSpinner maxMemorySpinner = new JSpinner(maxMemorySpinnerModel);
 		c.gridx = 0;
 		c.gridy = row++;
