@@ -36,7 +36,7 @@ public class MineshafterSquaredGUI implements Runnable {
 	private static final int DEFAULT_WIDTH = 854;
 	private static final int DEFAULT_HEIGHT = 480;
 	public static final String MC_DOWNLOAD = "http://s3.amazonaws.com/MinecraftDownload/minecraft.jar";
-	public static final SimpleVersion VERSION = new SimpleVersion("4.0.2");
+	public static final SimpleVersion VERSION = new SimpleVersion("4.0.3");
 	public static final String DEFAULT_AUTH_SERVER = "alpha.mineshaftersquared.com";
 	
 	public static void main(String[] args) {
@@ -78,7 +78,7 @@ public class MineshafterSquaredGUI implements Runnable {
 		
 		System.out.println(SimpleUtils.getRam());
 		
-		this.startProxy();
+		//this.startProxy();
 		
 		if (clientHasUpdate()) {
 			JOptionPane.showMessageDialog(null, "There is an update at ms2.creatifcubed.com");
@@ -92,6 +92,7 @@ public class MineshafterSquaredGUI implements Runnable {
 			System.out.println("Latest version: " + latest.toString());
 			return VERSION.shouldUpdateTo(latest);
 		} catch (Exception ex) {
+			ex.printStackTrace();
 			JOptionPane.showMessageDialog(null, "Unable to check update. Please go manually to ms2.creatifcubed.com");
 		}
 		return false;
@@ -108,7 +109,7 @@ public class MineshafterSquaredGUI implements Runnable {
 		System.setProperty("http.proxyPort", Integer.toString(this.proxyPort));
 		System.setProperty("java.net.preferIPv4Stack", "true");
 		
-		this.indexPane.updateInfo(this.proxyPort);
+		//this.indexPane.updateInfo(this.proxyPort);
 		
 	}
 	
@@ -141,9 +142,6 @@ public class MineshafterSquaredGUI implements Runnable {
 			//arr.add("-Dsun.java2d.d3d=false");
 			//arr.add("-Dsun.java2d.opengl=false");
 			//arr.add("-Dsun.java2d.pmoffscreen=false");
-			
-			arr.add("-Dhttp.proxyHost=127.0.0.1");
-			arr.add("-Dhttp.proxyPort=" + this.proxyPort);
 
 			arr.add("-classpath");
 	        arr.add(str);
@@ -152,6 +150,8 @@ public class MineshafterSquaredGUI implements Runnable {
 	        arr.add(this.sessionId.getText());
 	        int pathFind = this.settings.getInt("gui.launch.pathfind", MinecraftLauncher.PATH_AUTODETECT);
 	        arr.add(String.valueOf(pathFind));
+	        arr.add(this.settings.getString("proxy.authserver", DEFAULT_AUTH_SERVER));
+	        arr.add(VERSION.toString());
 	        
 	        
 	        ProcessBuilder builder = new ProcessBuilder(arr);
@@ -180,28 +180,16 @@ public class MineshafterSquaredGUI implements Runnable {
 			//String str = this.getClass().getProtectionDomain().getCodeSource().getLocation().toURI().getPath();
 			List<String> arr = new ArrayList<String>();
 			arr.add("java");
-			if (max != 0) {
-				arr.add("-Xmx" + max + "m");
-				//arr.add("-Xms" + max + "m");
-			}
-			if (min != 0) {
-				arr.add("-Xms" + min + "m");
-			}
+
+			arr.add("-classpath");
+			arr.add(this.getClass().getProtectionDomain().getCodeSource().getLocation().toURI().getPath());
+			arr.add("com.mineshaftersquared.resources.ServerProxy");
+			arr.add(this.settings.getString("server.name", "minecraft_server") + ".jar");
+			arr.add(this.settings.getString("proxy.authserver", DEFAULT_AUTH_SERVER));
+			arr.add(VERSION.toString());
+			arr.add((max == 0) ? "null" : Integer.toString(max));
+			arr.add((min == 0) ? "null" : Integer.toString(min));
 			
-
-			arr.add("-Dhttp.proxyHost=127.0.0.1");
-			arr.add("-Dhttp.proxyPort=" + this.proxyPort);
-
-			arr.add("-jar");
-	        String server = this.settings.getString("server.name");
-	        if (server == null) {
-	        	server = "minecraft_server";
-	        }
-	        server += ".jar";
-	        if (!(new File(server).exists())) {
-	        	JOptionPane.showMessageDialog(null, "Server file {" + server + "} does not exist");
-	        }
-	        arr.add(server);
 	        ProcessBuilder builder = new ProcessBuilder(arr);
 	        builder.redirectOutput();
 	        builder.redirectError();

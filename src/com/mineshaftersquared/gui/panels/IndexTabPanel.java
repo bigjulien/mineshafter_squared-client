@@ -207,11 +207,12 @@ public class IndexTabPanel extends AbstractTabPanel {
 		launchPane.setBorder(BorderFactory.createTitledBorder(BorderFactory.createLineBorder(Color.BLACK), "Launch"));
 		
 		this.add(launchPane, BorderLayout.SOUTH);
+		this.updateInfo();
 	}
 	
-	public void updateInfo(int proxyPort) {
+	public void updateInfo() {
 		String javaVersion = System.getProperty("java.version");
 		String os = Platform.getPlatform().toString();
-		this.infoLabel.setText(String.format("<html><ul><li>Java Version: %s</li><li>Detected OS: %s</li><li>Proxying on port: %d</li><li>Total Ram: %s</ul></html>", javaVersion, os, proxyPort, (double) (SimpleUtils.getRam() * 100 / 1024 / 1024 / 1024) / 100 + "GB"));
+		this.infoLabel.setText(String.format("<html><ul><li>Java Version: %s</li><li>Detected OS: %s</li><li>Total Ram: %s</ul></html>", javaVersion, os, (double) (SimpleUtils.getRam() * 100 / 1024 / 1024 / 1024) / 100 + "GB"));
 	}
 }
