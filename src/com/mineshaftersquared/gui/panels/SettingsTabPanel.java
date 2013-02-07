@@ -17,6 +17,7 @@ import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JSlider;
 import javax.swing.JSpinner;
+import javax.swing.JTextField;
 import javax.swing.SpinnerNumberModel;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
@@ -100,6 +101,38 @@ public class SettingsTabPanel extends AbstractTabPanel {
 		memoryPane.add(memorySaveButtonWrapper, c);
 		
 		this.add(memoryPane);
+		this.add(this.buildAuthServerPane(gui));
+	}
+	
+	private JPanel buildAuthServerPane(final MineshafterSquaredGUI gui) {
+		JPanel authServerPane = new JPanel();
+		authServerPane.setBorder(BorderFactory.createTitledBorder(BorderFactory.createLineBorder(Color.BLACK), "Auth Server"));
+		
+		JLabel authServerLabel = new JLabel("Auth server");
+		final JTextField authServerField = new JTextField(gui.settings.getString("proxy.authserver", MineshafterSquaredGUI.DEFAULT_AUTH_SERVER), 30);
+		JButton authServerSave = new JButton("Save");
+		authServerSave.addActionListener(new ActionListener() {
+			@Override
+			public void actionPerformed(ActionEvent event) {
+				gui.settings.put("proxy.authserver", authServerField.getText());
+				gui.settings.save();
+			}
+		});
+		JButton authServerDefault = new JButton("Default");
+		authServerDefault.addActionListener(new ActionListener() {
+			@Override
+			public void actionPerformed(ActionEvent event) {
+				authServerField.setText(MineshafterSquaredGUI.DEFAULT_AUTH_SERVER);
+			}
+		});
+		
+		authServerPane.add(authServerLabel);
+		authServerPane.add(new JLabel("http://"));
+		authServerPane.add(authServerField);
+		authServerPane.add(authServerSave);
+		authServerPane.add(authServerDefault);
+		
+		return authServerPane;
 	}
 	
 	private static int constrain(int value, int min, int max) {

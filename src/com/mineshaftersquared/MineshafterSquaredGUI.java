@@ -1,57 +1,26 @@
 package com.mineshaftersquared;
 
 import java.awt.BorderLayout;
-import java.awt.Color;
-import java.awt.Dimension;
-import java.awt.FlowLayout;
-import java.awt.GridLayout;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
-import java.awt.event.MouseEvent;
-import java.awt.event.MouseListener;
 import java.io.File;
-import java.io.FileOutputStream;
 import java.io.FilenameFilter;
 import java.net.URL;
-import java.nio.channels.Channels;
-import java.nio.channels.ReadableByteChannel;
 import java.util.ArrayList;
-import java.util.LinkedList;
 import java.util.List;
 import java.util.regex.Pattern;
 
-import javax.swing.BorderFactory;
-import javax.swing.ButtonGroup;
-import javax.swing.JButton;
-import javax.swing.JCheckBox;
-import javax.swing.JComponent;
-import javax.swing.JDialog;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
-import javax.swing.JPasswordField;
-import javax.swing.JProgressBar;
-import javax.swing.JRadioButton;
-import javax.swing.JSlider;
 import javax.swing.JTabbedPane;
 import javax.swing.JTextField;
-import javax.swing.event.ChangeEvent;
-import javax.swing.event.ChangeListener;
 
-import com.creatifcubed.simpleapi.ISimpleSettings;
-import com.creatifcubed.simpleapi.Platform;
-import com.creatifcubed.simpleapi.SimpleRequest;
-import com.creatifcubed.simpleapi.SimpleVersion;
-import com.creatifcubed.simpleapi.SimpleWaiter;
-import com.creatifcubed.simpleapi.SimpleXMLSettings;
-import com.creatifcubed.simpleapi.SimpleUtils;
+import com.creatifcubed.simpleapi.*;
 import com.mineshaftersquared.gui.panels.FeedbackTabPanel;
 import com.mineshaftersquared.gui.panels.IndexTabPanel;
 import com.mineshaftersquared.gui.panels.InfoTabPanel;
 import com.mineshaftersquared.gui.panels.SettingsTabPanel;
 import com.mineshaftersquared.proxy.MineProxy;
-import com.mineshaftersquared.resources.MS2Frame;
 import com.mineshaftersquared.resources.Utils;
 
 public class MineshafterSquaredGUI implements Runnable {
@@ -67,7 +36,8 @@ public class MineshafterSquaredGUI implements Runnable {
 	private static final int DEFAULT_WIDTH = 854;
 	private static final int DEFAULT_HEIGHT = 480;
 	public static final String MC_DOWNLOAD = "http://s3.amazonaws.com/MinecraftDownload/minecraft.jar";
-	public static final SimpleVersion VERSION = new SimpleVersion("4.0.1");
+	public static final SimpleVersion VERSION = new SimpleVersion("4.0.2");
+	public static final String DEFAULT_AUTH_SERVER = "alpha.mineshaftersquared.com";
 	
 	public static void main(String[] args) {
 		(new MineshafterSquaredGUI(args)).run();
@@ -129,7 +99,7 @@ public class MineshafterSquaredGUI implements Runnable {
 	
 	public void startProxy() {
 		MineProxy proxy = new MineProxy(VERSION, ""); // create proxy
-		MineProxy.authServer = "alpha.mineshaftersquared.com";
+		MineProxy.authServer = this.settings.getString("proxy.authserver", DEFAULT_AUTH_SERVER);
 		proxy.start(); // launch proxy
 		this.proxyPort = proxy.getPort();
 		
@@ -247,7 +217,7 @@ public class MineshafterSquaredGUI implements Runnable {
 	}
 	
 	private void hideLauncher(Process p) {
-		if (this.settings.getInt("gui.launch.closeonstart", 0) != 0) {
+		if (this.settings.getInt("gui.launch.closeonstart", 1) != 0) {
 			this.mainWindow.setVisible(false);
 			try {
 				p.waitFor();

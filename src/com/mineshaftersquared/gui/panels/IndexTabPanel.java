@@ -161,7 +161,7 @@ public class IndexTabPanel extends AbstractTabPanel {
 		pathFindOptions.add(local);
 		pathFindOptions.add(defaultMC);
 		
-		JCheckBox closeOnStart = new JCheckBox("Close on start?", gui.settings.getInt("gui.launch.closeonstart", 0) != 0);
+		JCheckBox closeOnStart = new JCheckBox("Close on start?", gui.settings.getInt("gui.launch.closeonstart", 1) != 0);
 		closeOnStart.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent event) {
