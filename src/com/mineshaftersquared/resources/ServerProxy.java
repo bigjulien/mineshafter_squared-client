@@ -84,10 +84,12 @@ public class ServerProxy {
 	        }
 	        p.waitFor();
 	        System.out.println("Done");
+	        proxy.shouldEnd = true;
 		} catch (Exception ex) {
 			ex.printStackTrace();
 		}
+		
 		//System.out.println("hmmmmm");
-		System.exit(0);
+		//System.exit(0);
 	}
 }

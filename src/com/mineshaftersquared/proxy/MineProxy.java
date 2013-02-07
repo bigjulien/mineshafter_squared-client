@@ -16,6 +16,7 @@ public class MineProxy extends Thread {
 	public static String authServer;
 	public SimpleVersion version;
 	private int port = -1;
+	public volatile boolean shouldEnd;
 
 	// Patterns
 	public static Pattern SKIN_URL = Pattern.compile("http://skins\\.minecraft\\.net/MinecraftSkins/(.+?)\\.png");
@@ -41,12 +42,13 @@ public class MineProxy extends Thread {
 
 		skinCache = new Hashtable<String, byte[]>();
 		cloakCache = new Hashtable<String, byte[]>();
+		this.shouldEnd = false;
 	}
 
-	@SuppressWarnings("resource")
+	//@SuppressWarnings("resource")
 	public void run() {
+		ServerSocket server = null;
 		try {
-			ServerSocket server = null;
 			int port = 9010; // A lot of other applications use the 80xx range,
 								// let's try for some less crowded real-estate
 			while (port < 12000) { // That should be enough
@@ -62,15 +64,28 @@ public class MineProxy extends Thread {
 				}
 
 			}
-
+			server.setSoTimeout(1000 * 5);
 			while(true) {
-				Socket connection = server.accept();
-
-				MineProxyHandler handler = new MineProxyHandler(this, connection);
-				handler.start();
+				try {
+					if (this.shouldEnd) {
+						break;
+					}
+					Socket connection = server.accept();
+	
+					MineProxyHandler handler = new MineProxyHandler(this, connection);
+					handler.start();
+				} catch (Exception ignore) {
+					System.out.println("timed out");
+				}
 			}
 		} catch(IOException ex) {
 			Logger.log("Error in server accept loop: " + ex.getLocalizedMessage());
+		} finally {
+			try {
+				server.close();
+			} catch (Exception ignore) {
+				//
+			}
 		}
 	}
 
