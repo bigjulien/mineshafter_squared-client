@@ -75,7 +75,7 @@ public class MineProxy extends Thread {
 					MineProxyHandler handler = new MineProxyHandler(this, connection);
 					handler.start();
 				} catch (Exception ignore) {
-					System.out.println("timed out");
+					System.out.println("{MineProxy timed out (normal)}");
 				}
 			}
 		} catch(IOException ex) {

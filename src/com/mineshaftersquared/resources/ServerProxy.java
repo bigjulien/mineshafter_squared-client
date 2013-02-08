@@ -75,10 +75,14 @@ public class ServerProxy {
 	        }
 	        arr.add(server);
 	        ProcessBuilder builder = new ProcessBuilder(arr);
-	        builder.redirectOutput();
-	        builder.redirectError();
-	        builder.redirectOutput(ProcessBuilder.Redirect.INHERIT);
+	        //builder.redirectOutput();
+	        //builder.redirectError();
+	        //builder.redirectOutput(ProcessBuilder.Redirect.INHERIT);
+	        //builder.inheritIO();
+
+	        builder.redirectErrorStream(true);
 	        Process p = builder.start();
+	        new Thread(new ProcessOutputRedirector(p, "[MS2 - Server]")).start();
 	        for (String a : arr) {
 	        	System.out.print(a + " ");
 	        }

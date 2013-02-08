@@ -1,8 +1,10 @@
 package com.mineshaftersquared;
 
 import java.awt.BorderLayout;
+import java.io.BufferedReader;
 import java.io.File;
 import java.io.FilenameFilter;
+import java.io.InputStreamReader;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.List;
@@ -21,6 +23,7 @@ import com.mineshaftersquared.gui.panels.IndexTabPanel;
 import com.mineshaftersquared.gui.panels.InfoTabPanel;
 import com.mineshaftersquared.gui.panels.SettingsTabPanel;
 import com.mineshaftersquared.proxy.MineProxy;
+import com.mineshaftersquared.resources.ProcessOutputRedirector;
 import com.mineshaftersquared.resources.Utils;
 
 public class MineshafterSquaredGUI implements Runnable {
@@ -36,8 +39,8 @@ public class MineshafterSquaredGUI implements Runnable {
 	private static final int DEFAULT_WIDTH = 854;
 	private static final int DEFAULT_HEIGHT = 480;
 	public static final String MC_DOWNLOAD = "http://s3.amazonaws.com/MinecraftDownload/minecraft.jar";
-	public static final SimpleVersion VERSION = new SimpleVersion("4.0.3");
-	public static final String DEFAULT_AUTH_SERVER = "alpha.mineshaftersquared.com";
+	public static final SimpleVersion VERSION = new SimpleVersion("4.0.4");
+	public static final String DEFAULT_AUTH_SERVER = "mineshaftersquared.com";
 	
 	public static void main(String[] args) {
 		(new MineshafterSquaredGUI(args)).run();
@@ -155,11 +158,21 @@ public class MineshafterSquaredGUI implements Runnable {
 	        
 	        
 	        ProcessBuilder builder = new ProcessBuilder(arr);
+	        
 	        System.out.println("here");
 	        //builder.redirectOutput();
-	        builder.redirectOutput(ProcessBuilder.Redirect.INHERIT);
+	        //builder.redirectOutput(ProcessBuilder.Redirect.INHERIT);
+	        //builder.redirectErrorStream(true);
+	        //builder.inheritIO();
 	        builder.redirectErrorStream(true);
 	        Process p = builder.start();
+	        new Thread(new ProcessOutputRedirector(p, "[MS2 - Game]")).start();
+	        /*String s;
+            BufferedReader stdout = new BufferedReader (
+                new InputStreamReader(p.getInputStream()));
+            while ((s = stdout.readLine()) != null) {
+                System.out.println(s);
+            }*/
 	        for (String a : arr) {
 	        	System.out.print(a + " ");
 	        }
@@ -191,10 +204,13 @@ public class MineshafterSquaredGUI implements Runnable {
 			arr.add((min == 0) ? "null" : Integer.toString(min));
 			
 	        ProcessBuilder builder = new ProcessBuilder(arr);
-	        builder.redirectOutput();
-	        builder.redirectError();
-	        builder.redirectOutput(ProcessBuilder.Redirect.INHERIT);
+	        //builder.redirectOutput();
+	        //builder.redirectError();
+	        //builder.redirectOutput(ProcessBuilder.Redirect.INHERIT);
+	        //builder.inheritIO();
+	        builder.redirectErrorStream(true);
 	        Process p = builder.start();
+	        new Thread(new ProcessOutputRedirector(p, "[MS2 - ServerProxy]")).start();
 	        for (String a : arr) {
 	        	System.out.print(a + " ");
 	        }
@@ -206,6 +222,7 @@ public class MineshafterSquaredGUI implements Runnable {
 	
 	private void hideLauncher(Process p) {
 		if (this.settings.getInt("gui.launch.closeonstart", 1) != 0) {
+			//System.exit(0);
 			this.mainWindow.setVisible(false);
 			try {
 				p.waitFor();

@@ -23,8 +23,8 @@ public class DriverDelta {
 	        arr.add("com.mineshaftersquared.DriverBeta");
 	        ProcessBuilder builder = new ProcessBuilder(arr);
 	        System.out.println("here");
-	        builder.redirectOutput();
-	        builder.redirectError();
+	        //builder.redirectOutput();
+	        //builder.redirectError();
 	        builder.start();
 	        for (String a : arr) {
 	        	System.out.print(a + " ");
