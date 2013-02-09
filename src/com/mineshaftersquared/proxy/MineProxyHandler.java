@@ -2,6 +2,7 @@ package com.mineshaftersquared.proxy;
 
 import java.io.BufferedInputStream;
 import java.io.BufferedOutputStream;
+import java.io.BufferedReader;
 import java.io.DataInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.DataOutputStream;
@@ -71,6 +72,7 @@ public class MineProxyHandler extends Thread {
 		Matcher skinMatcher = MineProxy.SKIN_URL.matcher(url);
 		Matcher cloakMatcher = MineProxy.CLOAK_URL.matcher(url);
 		Matcher getversionMatcher = MineProxy.GETVERSION_URL.matcher(url);
+		Matcher altLoginMatcher = MineProxy.ALTLOGIN_URL.matcher(url);
 		Matcher joinserverMatcher = MineProxy.JOINSERVER_URL.matcher(url);
 		Matcher checkserverMatcher = MineProxy.CHECKSERVER_URL.matcher(url);
 		Matcher audiofix_url = MineProxy.AUDIOFIX_URL.matcher(url);
@@ -125,17 +127,52 @@ public class MineProxyHandler extends Thread {
 
 		} 
 		// If Version Request
-		else if(getversionMatcher.matches()) {
+		else if(getversionMatcher.matches() || altLoginMatcher.matches()) {
 			Logger.log("GetVersion");
-
+			String oldUrl = url;
 			url = "http://" + MineProxy.authServer + "/game/get_version/";
 			Logger.log("To: " + url);
 
 			try {
-				int postlen = Integer.parseInt(headers.get("content-length"));
-				char[] postdata = new char[postlen];
-				InputStreamReader reader = new InputStreamReader(fromClient);
-				reader.read(postdata);
+				String contentLength = headers.get("content-length");
+				if (contentLength == null) {
+					for (String str : headers.keySet()) {
+						System.out.println("key: " + str + ", value: " + headers.get(str));
+					}
+					contentLength = "0";
+				}
+				int postlen = Integer.parseInt(contentLength);
+				char[] postdata = new char[0];
+				if (getversionMatcher.matches()) {
+					postdata = new char[postlen];
+					InputStreamReader reader = new InputStreamReader(fromClient);
+					reader.read(postdata);
+				} else {
+					try {
+						System.out.println("old urL: " + oldUrl);
+						//
+						//String queryPart = oldUrl.split("\\?")[1];
+						
+						
+						InputStreamReader reader = new InputStreamReader(fromClient);
+						BufferedReader br = new BufferedReader(reader);
+						while (true) {
+							String abc = br.readLine();
+							if (abc == null) break;
+							System.out.println("reading: " + abc);
+						}
+						
+						/*postdata = queryPart.toCharArray();
+						Map<String, String> queryParams = new HashMap<String, String>();
+						String[] queryTokens = queryPart.split("=");
+						for (int i = 0; i < queryTokens.length; i++) {
+							queryParams.put(queryTokens[i * 2], queryTokens[i * 2 + 1]);
+						}*/
+						//postdata = queryPart.toCharArray();
+					} catch (Exception ex) {
+						ex.printStackTrace();
+					}
+				}
 
 				String postString = new String();
 				for(char c : postdata) {
@@ -147,6 +184,7 @@ public class MineProxyHandler extends Thread {
 				data = postRequest(url, new String(postdata), "application/x-www-form-urlencoded");
 
 				String response = new String(data);
+				System.out.println("data: "  + response);
 
 				if(HELP_TICKET_LOGIN_REGEX.matcher(response).matches()) {
 					// TODO: Flip Help Toggle
@@ -154,7 +192,7 @@ public class MineProxyHandler extends Thread {
 			} catch(IOException ex) {
 				Logger.log("Unable to read POST data from getversion request: " + ex.getLocalizedMessage());
 			}
-		} 
+		}
 		// If JoinServer Request
 		else if(joinserverMatcher.matches()) {
 			Logger.log("JoinServer");

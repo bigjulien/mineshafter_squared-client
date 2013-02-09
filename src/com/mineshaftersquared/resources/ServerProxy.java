@@ -67,6 +67,9 @@ public class ServerProxy {
 	
 			arr.add("-Dhttp.proxyHost=127.0.0.1");
 			arr.add("-Dhttp.proxyPort=" + proxy.getPort());
+			arr.add("-Dhttps.proxyHost=127.0.0.1");
+			arr.add("-Dhttps.proxyPort=" + proxy.getPort());
+			
 	
 			arr.add("-jar");
 	        String server = serverJar;

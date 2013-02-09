@@ -3,7 +3,7 @@ package com.creatifcubed.simpleapi;
 public enum Platform {
 	WINDOWS("Windows"),
 	MAC("Mac"),
-	UNIX("Unix"),
+	UNIX("Unix (like)"),
 	SOLARIS("Solaris"),
 	UNKNOWN("Unknown");
 	
